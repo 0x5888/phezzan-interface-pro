@@ -1,0 +1,18 @@
+{
+  "_format": "hh-zksolc-artifact-1",
+  "contractName": "Context",
+  "sourceName": "@openzeppelin/contracts/GSN/Context.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "factoryDeps": {}
+}

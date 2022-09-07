@@ -1,0 +1,21 @@
+{
+  "short_name": "Phezzan Protocol",
+  "name": "Phezzan Protocol",
+  "description": "Democratize Perpetual Trading For All Earn yield while you trade.",
+  "icons": [
+    {
+      "src": "\/favicon.ico",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "\/favicon.ico",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

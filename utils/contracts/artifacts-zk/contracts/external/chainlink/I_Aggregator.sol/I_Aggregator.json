@@ -1,0 +1,27 @@
+{
+  "_format": "hh-zksolc-artifact-1",
+  "contractName": "I_Aggregator",
+  "sourceName": "contracts/external/chainlink/I_Aggregator.sol",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "latestAnswer",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "factoryDeps": {}
+}

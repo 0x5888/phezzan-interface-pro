@@ -1,0 +1,80 @@
+{
+  "_format": "hh-zksolc-artifact-1",
+  "contractName": "I_P1Trader",
+  "sourceName": "contracts/protocol/v1/intf/I_P1Trader.sol",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "taker",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "traderFlags",
+          "type": "bytes32"
+        }
+      ],
+      "name": "trade",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "marginAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "positionAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isBuy",
+              "type": "bool"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "traderFlags",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct P1Types.TradeResult",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "factoryDeps": {}
+}
