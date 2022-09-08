@@ -1177,7 +1177,7 @@ export default function AdvancedTradeForm({
                   side === 'buy' ? 'bg-th-green-dark' : 'bg-th-red'
                 }`}
               >
-                {isLoading ? "loading" : sizeTooLarge
+                {isLoading ? "Loading..." : sizeTooLarge
                   ? t('too-large')
                   : side === 'buy'
                   ? `${

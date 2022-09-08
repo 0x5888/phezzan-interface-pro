@@ -276,7 +276,7 @@ const PositionsTable: React.FC = () => {
                         }, 3000);
                       }}
                   >
-                      {isLoading ? "loading" : "Close Position"}
+                      {isLoading ? "Loading..." : "Close Position"}
                   </button>
                 </div>
 
