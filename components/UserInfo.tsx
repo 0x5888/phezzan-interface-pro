@@ -8,7 +8,7 @@ import ManualRefresh from './ManualRefresh'
 import Tabs from './Tabs'
 import { marketConfigSelector } from '../stores/selectors'
 
-const TABS = ['Balances', 'Orders', 'Positions', 'Trade History']
+const TABS = ['Position', 'Open Order', 'Filled Order', 'Trade History']
 
 const UserInfoTabs = ({ activeTab, setActiveTab }) => {
   const totalOpenOrders = useMangoStore(
@@ -24,13 +24,13 @@ const UserInfoTabs = ({ activeTab, setActiveTab }) => {
   }
 
   return (
-    <div className="relative pb-1">
+    <div className="relative">
       <Tabs
         activeTab={activeTab}
         onChange={handleTabChange}
         showCount={[
-          { tabName: 'Orders', count: totalOpenOrders },
           { tabName: 'Positions', count: totalOpenPerpPositions },
+          { tabName: 'Orders', count: totalOpenOrders },
         ]}
         tabs={TABS}
       />
@@ -45,13 +45,15 @@ const UserInfoTabs = ({ activeTab, setActiveTab }) => {
 
 const TabContent = ({ activeTab }) => {
   switch (activeTab) {
-    case 'Orders':
+    case 'Open Order':
+      return <OpenOrdersTable />
+    case 'Filled Order':
       return <OpenOrdersTable />
     case 'Balances':
       return <BalancesTable clickToPopulateTradeForm />
     case 'Trade History':
       return <TradeHistoryTable numTrades={100} />
-    case 'Positions':
+    case 'Position':
       return <PositionsTable />
     default:
       return <BalancesTable clickToPopulateTradeForm />

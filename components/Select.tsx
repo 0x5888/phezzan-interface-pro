@@ -16,7 +16,7 @@ const Select = ({
         {({ open }) => (
           <>
             <Listbox.Button
-              className={`h-full w-full rounded-md bg-th-bkg-1 font-normal ring-1 ring-inset ring-th-bkg-4 hover:ring-th-fgd-4 focus:border-th-fgd-4 focus:outline-none`}
+              className={`h-full w-full rounded-md bg-th-bkg-4 font-normal ring-1 ring-inset ring-th-bkg-4 border border-th-fgd-4 hover:ring-th-fgd-4 focus:border-th-fgd-4 focus:outline-none`}
             >
               <div
                 style={{ minHeight: '2.5rem' }}

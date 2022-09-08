@@ -366,19 +366,11 @@ export default function Orderbook({ depth = 8 }) {
         ) : (
           <FlipCardBack>
             <FloatingElement className="fadein-floating-element h-full p-0 md:p-0">
-              <div className="flex items-center justify-between bg-[#1F2025] h-8 pl-7">
+              <div className="flex items-center justify-between bg-[#1F2025] h-8 pl-7 border-b border-[#34353A]">
                 <ElementTitlePP noMarginBottom>{t('orderbook')}</ElementTitlePP>
               </div>
-              <div className="flex flex-row items-center justify-end pb-2">
-                <MarkPriceComponent markPrice={markPrice} />
-                <GroupSize
-                  tickSize={market?.tickSize}
-                  onChange={onGroupSizeChange}
-                  value={grouping}
-                  className="relative flex w-1/3 flex-col items-end"
-                />
-              </div>
-              <div className={`mb-2 flex justify-between bg-[#1F2025] text-th-fgd-4 text-[#818599] text-xs px-7 py-2`}>
+              
+              <div className={`mb-2 flex justify-between bg-[#1F2025] text-[#818599] text-xs px-7 py-2 border-b border-[#34353A]`}>
                 <div className={`text-left text-xs`}>
                   {displayCumulativeSize ? 'Cumulative ' : ''}
                   {t('size')} ({marketConfig.baseSymbol})
@@ -388,7 +380,7 @@ export default function Orderbook({ depth = 8 }) {
                 </div>
               </div>
               <div className={`px-7 bg-[#0A0B0D]`}>
-                {orderbookData?.asks.map(
+                {orderbookData?.asks.filter((i) => i<= 9).map(
                   ({
                     price,
                     size,
@@ -425,7 +417,7 @@ export default function Orderbook({ depth = 8 }) {
                 </div>
               </div>
               <div className={`px-7 bg-[#0A0B0D]`}>
-                {orderbookData?.bids.map(
+                {orderbookData?.bids.filter((i) => i<= 9).map(
                   ({
                     price,
                     size,
@@ -451,6 +443,16 @@ export default function Orderbook({ depth = 8 }) {
                     />
                   )
                 )}
+              </div>
+
+              <div className="flex flex-row items-center justify-end h-8 bg-[#1F2025] border-y border-[#34353A]">
+                <MarkPriceComponent markPrice={markPrice} />
+                <GroupSize
+                  tickSize={market?.tickSize}
+                  onChange={onGroupSizeChange}
+                  value={grouping}
+                  className="relative flex w-1/3 flex-col items-end"
+                />
               </div>
               
             </FloatingElement>

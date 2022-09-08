@@ -83,12 +83,12 @@ const MarketDetails = () => {
     >
       <div className="flex flex-col lg:flex-row lg:flex-wrap">
         <div className="hidden md:block md:pr-6 lg:pb-0">
-          <div className="flex items-center">
+          <div className="flex">
             <SwitchMarketDropdown />
           </div>
         </div>
-        <div className="grid grid-flow-row grid-cols-1 gap-2 md:mt-2.5 md:grid-cols-3 md:pr-20 lg:grid-flow-col lg:grid-cols-none lg:grid-rows-1 lg:gap-10">
-          <div className="flex items-center justify-center font-semibold text-2xl text-white">
+        <div className="grid grid-flow-row grid-cols-1 gap-2 md:grid-cols-3 md:pr-20 lg:grid-flow-col lg:grid-cols-none lg:grid-rows-1 lg:gap-10">
+          <div className="h-full flex justify-center font-semibold text-2xl text-white">
             <OraclePrice className="font-semibold text-2xl" />
           </div>
           <div className="flex items-center justify-between md:block">

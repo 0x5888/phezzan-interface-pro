@@ -309,6 +309,8 @@
     "orderbook": "订单簿",
     "orderbook-animation": "订单动画",
     "orders": "订单",
+    "open-order": "Open order",
+    "filled-order": "Filled order",
     "other": "其他",
     "overview": "摘要",
     "performance": "表现",

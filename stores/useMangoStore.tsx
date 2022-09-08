@@ -1394,10 +1394,8 @@ const useMangoStore = create<
 
                 return !isInactive
               })
-
-              console.log("parsedMarketsInfo____", parsedMarketsInfo)
               set((state) => {
-                //state.marketsInfo = parsedMarketsInfo
+                state.marketsInfo = parsedMarketsInfo
               })
             }
           } catch (e) {

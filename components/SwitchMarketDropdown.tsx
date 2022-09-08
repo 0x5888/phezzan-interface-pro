@@ -80,7 +80,7 @@ const SwitchMarketDropdown = () => {
                 {isPerpMarket ? '-' : '/'}
               </span>
               <div className="pl-0.5 text-base text-white">
-                {isPerpMarket ? 'PERP' : groupConfig?.quoteSymbol}
+                {isPerpMarket ? 'USDC' : groupConfig?.quoteSymbol}
               </div>
               </div>
               <div
@@ -134,26 +134,14 @@ const SwitchMarketDropdown = () => {
               ) : (
                 <div className="">
                   <div className="flex justify-between py-1.5">
-                    <h4 className="text-xs font-normal">{t('futures')}</h4>
+                    <h4 className="text-xs font-normal">
+                    
+                    </h4>
                     <p className="mb-0 hidden text-xs text-th-fgd-3 sm:block">
                       {t('favorite')}
                     </p>
                   </div>
                   {perpMarketsInfo.map((mkt) => (
-                    <MarketNavItem
-                      buttonRef={buttonRef}
-                      onClick={() => setSearchString('')}
-                      market={mkt}
-                      key={mkt.name}
-                    />
-                  ))}
-                  <div className="flex justify-between py-1.5">
-                    <h4 className="text-xs font-normal">{t('spot')}</h4>
-                    <p className="mb-0 hidden text-xs text-th-fgd-3 sm:block">
-                      {t('favorite')}
-                    </p>
-                  </div>
-                  {spotMarketsInfo.map((mkt) => (
                     <MarketNavItem
                       buttonRef={buttonRef}
                       onClick={() => setSearchString('')}

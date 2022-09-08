@@ -128,14 +128,14 @@ const useHydrateStore = () => {
       ))
       state.selectedMarket.current = market
 
-      // state.selectedMarket.orderBook.bids = decodeBookL2(
-      //   market,
-      //   state.accountInfos[marketConfig.bidsKey.toString()]
-      // )
-      // state.selectedMarket.orderBook.asks = decodeBookL2(
-      //   market,
-      //   state.accountInfos[marketConfig.asksKey.toString()]
-      // )
+      state.selectedMarket.orderBook.bids = decodeBookL2(
+        market,
+        state.accountInfos[marketConfig.bidsKey.toString()]
+      )
+      state.selectedMarket.orderBook.asks = decodeBookL2(
+        market,
+        state.accountInfos[marketConfig.asksKey.toString()]
+      )
     })
   }, [marketConfig, markets, setMangoStore])
 
@@ -237,10 +237,10 @@ const useHydrateStore = () => {
           setMangoStore((state) => {
             state.accountInfos[marketConfig.bidsKey.toString()] = info
 
-            // state.selectedMarket.orderBook.bids = decodeBookL2(
-            //   selectedMarket,
-            //   info
-            // )
+            state.selectedMarket.orderBook.bids = decodeBookL2(
+              selectedMarket,
+              info
+            )
           })
         }
       }
@@ -261,10 +261,10 @@ const useHydrateStore = () => {
           setMangoStore((state) => {
             state.accountInfos[marketConfig.asksKey.toString()] = info
 
-            // state.selectedMarket.orderBook.asks = decodeBookL2(
-            //   selectedMarket,
-            //   info
-            // )
+            state.selectedMarket.orderBook.asks = decodeBookL2(
+              selectedMarket,
+              info
+            )
           })
         }
       }

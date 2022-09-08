@@ -628,7 +628,15 @@ export default function AdvancedTradeForm({
     }
   }
 
+  const [has, setHas] = useLocalStorageState('positions', false)
+
   async function onSubmit() {
+    if (true) {
+      
+      setHas(true);
+      notify({ title: t('successfully-placed') })
+      return;
+    }
     if (!price && isLimitOrder && !postOnlySlide) {
       notify({
         title: t('missing-price'),
@@ -935,7 +943,7 @@ export default function AdvancedTradeForm({
           </>
         )}
         <div className="col-span-12 mt-4">
-          <label className="text-xxs text-th-fgd-3">{t('size')}-111</label>
+          <label className="text-xxs text-th-fgd-3">{t('size')}</label>
           <nav className="-mb-px flex space-x-2 mt-2" aria-label="Tabs">
             <button
               onClick={() => onChange('base')}
@@ -1018,7 +1026,7 @@ export default function AdvancedTradeForm({
               </div>
             ) : null
           ) : null}
-          <div className="mt-1 flex-wrap sm:flex">
+          <div className="invisible mt-1 flex-wrap sm:flex">
             {isLimitOrder ? (
               <div className="flex">
                 <div className="mr-4 mt-3">
@@ -1060,7 +1068,7 @@ export default function AdvancedTradeForm({
                 auto updating the reduceOnly state when doing a market order:
                 && showReduceOnly(perpAccount?.basePosition.toNumber())
              */}
-            <div className="flex">
+            <div className="flex invisible">
               {marketConfig.kind === 'perp' || isCloseOnly ? (
                 <div className="mr-4 mt-3">
                   <Tooltip
@@ -1126,7 +1134,7 @@ export default function AdvancedTradeForm({
           <div className={`mt-4 flex`}>
             {canTrade ? (
               <button
-                disabled={disabledTradeButton}
+                //disabled={disabledTradeButton}
                 onClick={onSubmit}
                 className={`flex-grow rounded-full px-6 py-2 font-bold text-white focus:outline-none disabled:cursor-not-allowed disabled:bg-th-bkg-4 disabled:text-th-fgd-4 ${
                   side === 'buy' ? 'bg-th-green-dark' : 'bg-th-red'

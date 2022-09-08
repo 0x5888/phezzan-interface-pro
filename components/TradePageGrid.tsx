@@ -168,7 +168,7 @@ const TradePageGrid: React.FC = () => {
           </FloatingElement>
         </div>
         <div key="userInfo">
-          <FloatingElement className="h-full">
+          <FloatingElement className="h-full pl-0 pr-0 pt-0 md:pl-0 md:pr-0 md:pt-0">
             <UserInfo />
           </FloatingElement>
         </div>
