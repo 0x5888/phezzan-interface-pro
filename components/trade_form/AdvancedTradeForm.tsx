@@ -897,6 +897,24 @@ export default function AdvancedTradeForm({
             offerTriggers={isPerpMarket}
           />
         </div>
+
+
+        <div className="col-span-12 mt-4">
+          
+            <>
+              <label className="text-xxs text-th-fgd-3 mb-2">Leverage</label>
+              <Input
+                wrapperClassName="w-full mt-2"
+                type="number"
+                min="0"
+                // prefix={
+                //   <span>Amount</span>
+                // }
+                suffix="X"
+              />
+            </>
+        </div>
+
         <div className="col-span-12 mt-4">
           {!isTriggerOrder ? (
             <>
