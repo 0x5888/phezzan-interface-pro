@@ -31,6 +31,8 @@ import useMangoAccount from 'hooks/useMangoAccount'
 import useLocalStorageState from 'hooks/useLocalStorageState'
 import EditTableColumnsModal from './EditTableColumnsModal'
 
+import api from "utils/api";
+
 const TABLE_COLUMNS = {
   market: true,
   side: true,
@@ -257,12 +259,21 @@ const PositionsTable: React.FC = () => {
                   
                   <button
                       className="flex w-80 h-10 mt-5 items-center justify-center text-sm font-medium rounded-2xl text-[#0F1429]  bg-[#00CAD9]  hover:cursor-pointer focus:outline-none"
-                      onClick={() => {
+                      onClick={async () => {
                         setLoading(true)
+                        try {
+                          await api.approveExchangeContract(
+                            "USDC",
+                            0 // amount = 0 ==> MAX_ALLOWANCE
+                          );
+                        } catch (e) {
+                          console.log("ERR____", e);
+                          //toast.error(e.message);
+                        }
                         setTimeout(() => {
                           setLoading(false);
                           setHas(0)
-                        }, 2000);
+                        }, 3000);
                       }}
                   >
                       {isLoading ? "loading" : "Close Position"}

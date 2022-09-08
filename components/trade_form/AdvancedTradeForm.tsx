@@ -1163,7 +1163,7 @@ export default function AdvancedTradeForm({
                   ? t('too-large')
                   : side === 'buy'
                   ? `${
-                      baseSize > 0 ? `${t('buy')} ` + 10 : `${t('buy')} `
+                      baseSize > 0 ? `${t('buy')} ` : `${t('buy')} `
                     } ${
                       isPerpMarket ? "" : marketConfig.baseSymbol
                     }`
