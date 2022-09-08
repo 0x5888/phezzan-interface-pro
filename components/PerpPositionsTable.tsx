@@ -235,7 +235,7 @@ const PositionsTable: React.FC = () => {
                         <p className="mb-0 text-lg font-medium text-[#FFFFFF]">
                           10 ETH
                         </p>
-                        <PnlText className="font-bold" pnl={16262} />
+                        <PnlText className="font-bold" pnl={16219} />
                       </div>
                   </div>
                   <div className="flex">
@@ -250,7 +250,7 @@ const PositionsTable: React.FC = () => {
                     </div>
                     <div className="flex flex-col">
                       <div>Avg.Open Price</div>
-                      <div className="mt-2">1626.2</div>
+                      <div className="mt-2">1621.9</div>
                     </div>
                   </div>
                   
