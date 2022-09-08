@@ -250,8 +250,8 @@ export default class APIZkSync2Provider extends APIProvider {
   }
 
   approveExchangeContract = async (token, amount) => {
-    const currencyInfo = this.api.getCurrencyInfo(token);
-    if (!currencyInfo.address) throw new Error(`ERC20 address for ${token} not found`);
+    //const currencyInfo = this.api.getCurrencyInfo(token);
+    //if (!currencyInfo.address) throw new Error(`ERC20 address for ${token} not found`);
     let amountBN;
     if(!amount) {
       amountBN = ethers.constants.MaxUint256;
@@ -263,7 +263,7 @@ export default class APIZkSync2Provider extends APIProvider {
     }
 
     const erc20Contract = new ethers.Contract(
-      currencyInfo.address,
+      "0xDBc19DE25039978f09d773539327A53C2930e083",
       erc20ContractABI,
       this.api.signer
     );

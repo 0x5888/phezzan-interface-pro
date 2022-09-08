@@ -377,12 +377,13 @@ export default class API extends Emitter {
           await this.refreshNetwork();
           await this.sleep(1000);
           
-          if (network === 280) {
+          if (network == 280) {
             // const web3Provider = await this.web3Modal.connect();
             // const provider = new Provider('https://zksync2-testnet.zksync.dev')
 
             const web3Provider = new Web3Provider(globalThis?.window?.ethereum);
             this.web3.setProvider(web3Provider.provider);
+            console.log("web3Provider____", web3Provider)
             this.signer = web3Provider.getSigner()
           }
 

