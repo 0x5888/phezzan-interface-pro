@@ -50,7 +50,7 @@ const PositionsTable: React.FC = () => {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showMarketCloseModal, setShowMarketCloseModal] = useState(false)
   const [positionToClose, setPositionToClose] = useState<any>(null)
-  const [isLoading, setLoading] = useState<boolean>(null)
+  const [isLoading, setLoading] = useState<boolean>(false)
   const [positionToShare, setPositionToShare] = useState<any>(null)
   const [settleSinglePos, setSettleSinglePos] = useState(null)
   const market = useMangoStore(marketSelector)
