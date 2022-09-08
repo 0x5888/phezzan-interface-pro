@@ -382,9 +382,7 @@ export default function Orderbook({ depth = 8 }) {
                 </div>
               </div>
               <div className={`px-7 bg-[#0A0B0D]`}>
-                {orderbookData?.asks.filter((v, i) => {
-                  return i<= 8
-                }).map(
+                {orderbookData?.asks.map(
                   ({
                     price,
                     size,
@@ -421,7 +419,7 @@ export default function Orderbook({ depth = 8 }) {
                 </div>
               </div>
               <div className={`px-7 bg-[#0A0B0D]`}>
-                {orderbookData?.bids.filter((v, i) => i<= 8).map(
+                {orderbookData?.bids.map(
                   ({
                     price,
                     size,
