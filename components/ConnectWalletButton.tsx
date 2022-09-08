@@ -128,6 +128,7 @@ export const ConnectWalletButton: React.FC = () => {
 
   const handleWalletConnectZK = async () => {
     try {
+      // @ts-ignore
       api?.emit("connecting", true)
       // setConnecting(true);
     
@@ -143,6 +144,7 @@ export const ConnectWalletButton: React.FC = () => {
     } catch (e) {
       console.error(e);
       // setConnecting(false);
+      // @ts-ignore
       api.emit("connecting", false)
     }
   };

@@ -599,11 +599,13 @@ const useMangoStore = create<
               const quantity = data[2];
 
               if (side === "b") {
-                orderbookBids.push([price, quantity])
+                // use
+                //orderbookBids.push([price, quantity])
               }
 
               if (side === "s") {
-                orderbookAsks.push([price, quantity])
+                // use
+                //orderbookAsks.push([price, quantity])
               }
             }
 
@@ -1313,24 +1315,43 @@ const useMangoStore = create<
 
             if (!price || Number.isNaN(price)) return;
 
+            // @ts-ignore
             parsedMarketsInfo.push({
+              // @ts-ignore
               baseSymbol: "BTC",
+              // @ts-ignore
               baseVolume24h: 5.490100000000003,
+              // @ts-ignore
               bestAsk: 19811.2,
+              // @ts-ignore
               bestBid: 19770.9,
+              // @ts-ignore
               change1h: 0,
+              // @ts-ignore
               change24h: change,
+              // @ts-ignore
               changeBod: -0.0034809154152665874,
+              // @ts-ignore
               high24h: 20160.2,
+              // @ts-ignore
               last: 19782,
+              // @ts-ignore
               low24h: 19624.7,
+              // @ts-ignore
               markPrice: price,
+              // @ts-ignore
               maxLeverage: 5,
+              // @ts-ignore
               midPrice: price,
+              // @ts-ignore
               name: market,
+              // @ts-ignore
               negSlipLiq2pct: 675438.7588199999,
+              // @ts-ignore
               posSlipLiq2pct: 519318.34454,
+              // @ts-ignore
               quoteVolume24h: quoteVolume,
+              // @ts-ignore
               volumeUsd24h: 108801.44890999993
             })
 

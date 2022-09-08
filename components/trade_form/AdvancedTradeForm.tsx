@@ -628,15 +628,18 @@ export default function AdvancedTradeForm({
     }
   }
 
-  const [has, setHas] = useLocalStorageState('positions', false)
+  const [has, setHas] = useLocalStorageState('positions', 1)
 
+  const flag = true;
   async function onSubmit() {
-    if (true) {
+    if (flag) {
       
       setHas(true);
       notify({ title: t('successfully-placed') })
       return;
     }
+
+
     if (!price && isLimitOrder && !postOnlySlide) {
       notify({
         title: t('missing-price'),

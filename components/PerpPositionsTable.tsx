@@ -63,6 +63,7 @@ const PositionsTable: React.FC = () => {
   const [has, setHas] = useLocalStorageState('positions', false)
 
   if (has == 1) {
+    // @ts-ignore
     openPositions = [1]
   } else {
     openPositions = []

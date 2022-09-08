@@ -301,7 +301,7 @@ export default function MarketPosition() {
           {initialLoad ? (
             <DataLoader />
           ) : (
-            <PerpSideBadge perpAccount={perpAccount}></PerpSideBadge>
+            <PerpSideBadge long></PerpSideBadge>
           )}
         </div>
         <div className="flex justify-between pb-2">
