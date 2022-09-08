@@ -50,6 +50,7 @@ const PositionsTable: React.FC = () => {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showMarketCloseModal, setShowMarketCloseModal] = useState(false)
   const [positionToClose, setPositionToClose] = useState<any>(null)
+  const [isLoading, setLoading] = useState<boolean>(null)
   const [positionToShare, setPositionToShare] = useState<any>(null)
   const [settleSinglePos, setSettleSinglePos] = useState(null)
   const market = useMangoStore(marketSelector)
@@ -257,10 +258,14 @@ const PositionsTable: React.FC = () => {
                   <button
                       className="flex w-80 h-10 mt-5 items-center justify-center text-sm font-medium rounded-2xl text-[#0F1429]  bg-[#00CAD9]  hover:cursor-pointer focus:outline-none"
                       onClick={() => {
-                        setHas(0);
+                        setLoading(true)
+                        setTimeout(() => {
+                          setLoading(false);
+                          setHas(0)
+                        }, 2000);
                       }}
                   >
-                      Close Position
+                      {isLoading ? "loading" : "Close Position"}
                   </button>
                 </div>
 
