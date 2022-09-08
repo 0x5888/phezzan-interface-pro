@@ -306,6 +306,8 @@ const ThemeSettings = ({ setSettingsView }) => {
   const { theme, setTheme } = useTheme()
   const { t } = useTranslation('common')
 
+  console.log("ThemeSettings____", theme)
+
   return (
     <>
       <Label>{t('theme')}</Label>

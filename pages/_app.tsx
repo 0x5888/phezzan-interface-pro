@@ -188,7 +188,7 @@ function App({ Component, pageProps }) {
         <meta name="google" content="notranslate" />
         <link rel="manifest" href="/manifest.json"></link>
       </Head>
-      <ThemeProvider defaultTheme="Mango">
+      <ThemeProvider defaultTheme="Dark">
         <ErrorBoundary>
           <WalletProvider wallets={wallets}>
             <PageTitle />

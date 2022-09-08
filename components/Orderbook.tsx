@@ -266,7 +266,7 @@ export default function Orderbook({ depth = 8 }) {
     setGrouping(groupSize)
   }
 
-  console.log("orderbookData_____", orderbookData)
+  console.log("orderbookData_____", orderbookData, orderbookData?.bids)
 
   return !isMobile ? (
     <FlipCard>
@@ -310,7 +310,9 @@ export default function Orderbook({ depth = 8 }) {
                       cumulativeSize,
                       sizePercent,
                       maxSizePercent,
-                    }) => (
+                    }) => {
+                      console.log("price_____", price)
+                      return (
                       <OrderbookRow
                         market={market}
                         hasOpenOrder={hasOpenOrderForPriceGroup(
@@ -327,7 +329,7 @@ export default function Orderbook({ depth = 8 }) {
                         }
                         grouping={grouping}
                       />
-                    )
+                    )}
                   )}
                 </div>
                 <div className="w-1/2">
@@ -380,7 +382,9 @@ export default function Orderbook({ depth = 8 }) {
                 </div>
               </div>
               <div className={`px-7 bg-[#0A0B0D]`}>
-                {orderbookData?.asks.filter((i) => i<= 9).map(
+                {orderbookData?.asks.filter((v, i) => {
+                  return i<= 8
+                }).map(
                   ({
                     price,
                     size,
@@ -417,7 +421,7 @@ export default function Orderbook({ depth = 8 }) {
                 </div>
               </div>
               <div className={`px-7 bg-[#0A0B0D]`}>
-                {orderbookData?.bids.filter((i) => i<= 9).map(
+                {orderbookData?.bids.filter((v, i) => i<= 8).map(
                   ({
                     price,
                     size,

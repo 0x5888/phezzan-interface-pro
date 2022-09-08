@@ -891,13 +891,10 @@ export default function AdvancedTradeForm({
                 value={price}
                 disabled={isMarketOrder}
                 placeholder={tradeType === 'Market' ? markPrice : ''}
-                prefix={
-                  <img
-                    src={`/assets/icons/${groupConfig.quoteSymbol.toLowerCase()}.svg`}
-                    width="16"
-                    height="16"
-                  />
-                }
+                // prefix={
+                //   <span>Amount</span>
+                // }
+                suffix="USDC"
               />
             </>
           ) : (
@@ -1149,14 +1146,14 @@ export default function AdvancedTradeForm({
                   ? `${
                       baseSize > 0 ? `${t('buy')} ` + baseSize : `${t('buy')} `
                     } ${
-                      isPerpMarket ? marketConfig.name : marketConfig.baseSymbol
+                      isPerpMarket ? "" : marketConfig.baseSymbol
                     }`
                   : `${
                       baseSize > 0
                         ? `${t('sell')} ` + baseSize
                         : `${t('sell')} `
                     } ${
-                      isPerpMarket ? marketConfig.name : marketConfig.baseSymbol
+                      isPerpMarket ? `` : marketConfig.baseSymbol
                     }`}
               </button>
             ) : (

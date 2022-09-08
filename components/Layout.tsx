@@ -106,7 +106,7 @@ const Layout = ({ children }) => {
                 </div>
               ) : null}
               <IconButton
-                className="h-8 w-8"
+                className="h-8 w-8 hidden"
                 onClick={() => setShowSettingsModal(true)}
               >
                 <CogIcon className="h-5 w-5" />

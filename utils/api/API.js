@@ -447,7 +447,7 @@ export default class API extends Emitter {
     this.mainnetProvider = null;
     this.isArgent = false;
     console.log("")
-    this.setAPIProvider(this.apibalanceUpdate_____555Provider.network, false);
+    this.setAPIProvider(this.apiProvider.network, false);
     this.emit("balanceUpdate", "wallet", {});
     this.emit("balanceUpdate", this.apiProvider.network, {});
     this.emit("balanceUpdate", "polygon", {});

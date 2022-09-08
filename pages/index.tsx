@@ -185,9 +185,9 @@ const PerpMarket: React.FC = () => {
         <IntroTips connected={connected} mangoAccount={mangoAccount} />
       ) : null}
       <TradePageGrid />
-      {!alphaAccepted && (
+      {/* {!alphaAccepted && (
         <AlphaModal isOpen={!alphaAccepted} onClose={() => {}} />
-      )}
+      )} */}
       {showCreateAccount ? (
         <AccountsModal
           isOpen={showCreateAccount}

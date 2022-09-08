@@ -66,7 +66,7 @@ const UserInfo = () => {
   const [activeTab, setActiveTab] = useState('')
 
   useEffect(() => {
-    isPerpMarket ? setActiveTab(TABS[2]) : setActiveTab(TABS[0])
+    isPerpMarket ? setActiveTab(TABS[0]) : setActiveTab(TABS[0])
   }, [isPerpMarket])
 
   return (
