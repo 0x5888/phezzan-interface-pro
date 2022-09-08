@@ -253,7 +253,7 @@ const PositionsTable: React.FC = () => {
                     </div>
                     <div className="flex flex-col">
                       <div>Avg.Open Price</div>
-                      <div className="mt-2">1621.9</div>
+                      <div className="mt-2">1630.1</div>
                     </div>
                   </div>
                   
