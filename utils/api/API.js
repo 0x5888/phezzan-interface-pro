@@ -590,7 +590,7 @@ export default class API extends Emitter {
   };
 
   subscribeToMarket = (market) => {
-    this.send("subscribemarket", [this.apiProvider.network, market]);
+    this.send("subscribemarket", [this.apiProvider?.network || 280, market]);
 
     // send fix
     //this.send("subscribemarket", [1, market]);
