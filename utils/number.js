@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import isString from "lodash/isString";
+import { Big } from "big.js"
 
 export function formatUSD(floatNum) {
   const num = parseFloat(floatNum || 0)
@@ -38,52 +39,6 @@ export function formatPrice(input) {
   }
   // remove trailing zero's
   return Number(outputNumber).toString();    
-}
-
-export function toBaseUnit(value, decimals) {
-  if (!isString(value)) {
-    throw new Error("Pass strings to prevent floating point precision issues.");
-  }
-
-  const base = BigNumber.from(10).pow(decimals);
-
-  if (value.charAt(0) === "-") {
-    value = value.substring(1);
-  }
-
-  if (value === ".") {
-    throw new Error(
-      `Invalid value ${value} cannot be converted to` +
-      ` base unit with ${decimals} decimals.`
-    );
-  }
-
-  // Split it into a whole and fractional part
-  let comps = value.split(".");
-  if (comps.length > 2) {
-    throw new Error("Too many decimal points");
-  }
-
-  let whole = comps[0],
-    fraction = comps[1];
-
-  if (!whole) {
-    whole = "0";
-  }
-  if (!fraction) {
-    fraction = "0";
-  }
-  if (fraction.length > decimals) {
-    throw new Error("Too many decimal places");
-  }
-
-  while (fraction.length < decimals) {
-    fraction += "0";
-  }
-
-  whole = BigNumber.from(whole);
-  fraction = BigNumber.from(fraction);
-  return BigNumber.from(whole.mul(base).add(fraction).toString(10));
 }
 
 export function numStringToSymbol(str, decimals) {
@@ -129,4 +84,62 @@ export function formatDate(date) {
       date.getFullYear(),
     ].join("-");
   }
+}
+
+export const ERC20_DECIMAL_DIGITS = 18
+
+export function bigNum2Big(val, decimals = ERC20_DECIMAL_DIGITS) {
+  return new Big(val.toString()).div(new Big(10).pow(decimals))
+}
+
+export function big2BigNum(val, decimals = ERC20_DECIMAL_DIGITS) {
+  debugger
+  return BigNumber.from((new Big(val)).mul(new Big(10).pow(decimals)).toFixed(0))
+}
+
+export function toBaseUnit(value, decimals) {
+  if (!isString(value)) {
+    throw new Error("Pass strings to prevent floating point precision issues.");
+  }
+
+  const base = BigNumber.from(10).pow(decimals);
+
+  if (value.charAt(0) === "-") {
+    value = value.substring(1);
+  }
+
+  if (value === ".") {
+    throw new Error(
+      `Invalid value ${value} cannot be converted to` +
+      ` base unit with ${decimals} decimals.`
+    );
+  }
+
+  // Split it into a whole and fractional part
+  let comps = value.split(".");
+  if (comps.length > 2) {
+    throw new Error("Too many decimal points");
+  }
+
+  let whole = comps[0],
+    fraction = comps[1];
+
+  if (!whole) {
+    whole = "0";
+  }
+  if (!fraction) {
+    fraction = "0";
+  }
+  if (fraction.length > decimals) {
+    throw new Error("Too many decimal places");
+  }
+
+  while (fraction.length < decimals) {
+    fraction += "0";
+  }
+
+  whole = BigNumber.from(whole);
+  fraction = BigNumber.from(fraction);
+
+  return BigNumber.from(whole.mul(base).add(fraction).toString(10));
 }

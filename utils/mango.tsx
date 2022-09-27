@@ -2,66 +2,18 @@ import { MangoAccount, TokenAccount } from '@blockworks-foundation/mango-client'
 import { Wallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import useMangoStore from '../stores/useMangoStore'
+import api from "utils/api"
 
 export async function deposit({
   amount,
-  fromTokenAcc,
-  mangoAccount,
-  accountName,
-  wallet,
+  address,
 }: {
   amount: number
-  fromTokenAcc: TokenAccount
-  mangoAccount?: MangoAccount | null
-  accountName?: string
-  wallet: Wallet
+  address: string
 }) {
-  const mangoGroup = useMangoStore.getState().selectedMangoGroup.current
-  if (!mangoGroup) throw new Error('Deposit failed. Mango group is undefined.')
-
-  const tokenIndex = mangoGroup.getTokenIndex(fromTokenAcc.mint)
-  const mangoClient = useMangoStore.getState().connection.client
-  const referrer = useMangoStore.getState().referrerPk || undefined
-
-  const mangoGroupPublicKey =
-    mangoGroup?.rootBankAccounts?.[tokenIndex]?.nodeBankAccounts[0].publicKey
-  const vault =
-    mangoGroup?.rootBankAccounts?.[tokenIndex]?.nodeBankAccounts[0].vault
-
-  if (!mangoGroup || !mangoGroupPublicKey || !vault) return
-
-  if (mangoAccount) {
-    return await mangoClient.deposit(
-      mangoGroup,
-      mangoAccount,
-      wallet?.adapter,
-      mangoGroup.tokens[tokenIndex].rootBank,
-      mangoGroupPublicKey,
-      vault,
-      fromTokenAcc.publicKey,
-      Number(amount)
-    )
-  } else if (wallet?.adapter && wallet?.adapter?.publicKey) {
-    const existingAccounts = await mangoClient.getMangoAccountsForOwner(
-      mangoGroup,
-      wallet.adapter.publicKey,
-      false
-    )
-    console.log('in deposit and create, referrer is', referrer)
-    return await mangoClient.createMangoAccountAndDeposit(
-      mangoGroup,
-      wallet.adapter,
-      mangoGroup.tokens[tokenIndex].rootBank,
-      mangoGroupPublicKey,
-      vault,
-      fromTokenAcc.publicKey,
-      Number(amount),
-      existingAccounts.length,
-      accountName,
-      referrer
-    )
-  }
+  return await api.deposit(amount, address)
 }
+
 
 export async function withdraw({
   amount,

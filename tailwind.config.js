@@ -19,8 +19,10 @@ module.exports = {
       colors: {
         'light-theme': {
           orange: {
-            DEFAULT: '#FF9C24',
-            dark: '#F58700',
+            //DEFAULT: '#FF9C24',
+            //dark: '#F58700',
+            DEFAULT: '#00D1E0',
+            dark: "#00D1E0"
           },
           red: { DEFAULT: '#DE3A3D', dark: '#DE3A3D', muted: '#DE3A3D' },
           green: { DEFAULT: '#00CF4C', dark: '#4EC253', muted: '#4EC253' },
@@ -33,12 +35,16 @@ module.exports = {
           'fgd-2': '#0C3F45',
           'fgd-3': '#446065',
           'fgd-4': '#B0B0B0',
-          'bkg-button': '#E6DBCF',
+          "fgd-5": '#FFFFFF',
+          //'bkg-button': 'linear-gradient(90deg, #64FC7A, #06D4DF)',
+          'bkg-button': '#06D4DF'
         },
         'dark-theme': {
           yellow: {
-            DEFAULT: '#F2C94C',
-            dark: '#E4AF11',
+            //DEFAULT: '#F2C94C',
+            //dark: '#E4AF11',
+            DEFAULT: '#00D1E0',
+            dark: "#00D1E0"
           },
           red: { DEFAULT: '#DE3A3D', dark: '#DE3A3D', muted: '#DE3A3D' },
           green: { DEFAULT: '#00CF4C', dark: '#4EC253', muted: '#4EC253' },
@@ -48,11 +54,13 @@ module.exports = {
           'bkg-3': '#27272B',
           'bkg-4': '#1F2025',
           'bkg-5': "#1F2025",
-          'fgd-1': '#D1D1D1',
+          'fgd-1': '#D1D1D1', // #0F1429
           'fgd-2': '#C8C8C8',
           'fgd-3': '#B3B3B3',
           'fgd-4': '#878787',
-          'bkg-button': '#4E5152',
+          "fgd-5": '#0F1429',
+          //'bkg-button': '#4E5152',
+          'bkg-button': '#00CAD9',
         },
         'mango-theme': {
           yellow: {
@@ -82,6 +90,7 @@ module.exports = {
         'th-fgd-2': 'var(--fgd-2)',
         'th-fgd-3': 'var(--fgd-3)',
         'th-fgd-4': 'var(--fgd-4)',
+        'th-fgd-5': 'var(--fgd-5)',
         'th-primary': 'var(--primary)',
         'th-primary-dark': 'var(--primary-dark)',
         'th-red': 'var(--red)',

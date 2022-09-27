@@ -66,8 +66,6 @@ const MarketDetails = () => {
     [marketsInfo, selectedMarketName]
   )
 
-  console.log("market_____112", market)
-
   const marketName = market?.baseSymbol;
 
   useEffect(() => {
@@ -76,6 +74,8 @@ const MarketDetails = () => {
     }
     
   }, [marketName])
+
+  console.log("market____111", api.marketInfo)
 
   return (
     <div
@@ -95,7 +95,7 @@ const MarketDetails = () => {
             <div className="text-th-fgd-3 text-xs md:pb-0.5 md:text-[0.65rem]">
               Mark Price
             </div>
-            <OraclePrice />
+            {market?.markPrice || "--"}
           </div>
           <div className="flex items-center justify-between md:block">
             <div className="text-th-fgd-3 text-xs md:pb-0.5 md:text-[0.65rem]">
@@ -142,7 +142,7 @@ const MarketDetails = () => {
                       </Tooltip>
                     </div>
                     <div className="text-th-fgd-1 md:text-xs text-[#ffffff]">
-                      {`${market?.funding1h.toFixed(4)}% (${(
+                      {`${market?.funding1h?.toFixed(4)}% (${(
                         market?.funding1h *
                         24 *
                         365

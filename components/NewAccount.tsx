@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react'
+import React, { FunctionComponent, useState, useEffect } from 'react'
 import {
   ExclamationCircleIcon,
   InformationCircleIcon,
@@ -22,7 +22,8 @@ import ButtonGroup from './ButtonGroup'
 import InlineNotification from './InlineNotification'
 import Modal from './Modal'
 import { useWallet } from '@solana/wallet-adapter-react'
-
+import api from "utils/api";
+import { bigNum2Big } from "../utils/number"
 interface NewAccountProps {
   onAccountCreation: (x?) => void
 }
@@ -38,10 +39,35 @@ const NewAccount: FunctionComponent<NewAccountProps> = ({
   const [invalidNameMessage, setInvalidNameMessage] = useState('')
   const [name, setName] = useState('')
   const { wallet } = useWallet()
-  const walletTokens = useMangoStore((s) => s.wallet.tokens)
+  //const walletTokens = useMangoStore((s) => s.wallet.tokens)
+
+  const [selectedAccount, setSelectedAccount] = useState<any>({})
+  const [usdcBalance, setUsdcBalance] = useState<any>();
+
+  const getBalance = async () => {
+    const balance = await api.getWalletBalances()
+
+
+    setUsdcBalance(bigNum2Big(balance, 6).toString())
+  }
+
+  useEffect(() => {
+    setSelectedAccount({
+      config: {
+        symbol: 'USDC',
+        decimals: 8,
+      },
+      uiBalance: usdcBalance,
+    })
+  }, usdcBalance)
+
+  useEffect(() => {
+    getBalance().catch((err) => console.log(err))
+  }, [])
+
   const actions = useMangoStore((s) => s.actions)
 
-  const [selectedAccount, setSelectedAccount] = useState(walletTokens[0])
+  
 
   const symbol = getSymbolForTokenMintAddress(
     selectedAccount?.account?.mint.toString()
@@ -54,21 +80,36 @@ const NewAccount: FunctionComponent<NewAccountProps> = ({
     setSelectedAccount(account)
   }
 
+  const allowanceExchange = async() => {
+    const allowance = await api.allowanceExchange();
+    console.log("allowance____", allowance, allowance.toString())
+  }
+
+  useEffect(() => {
+    allowanceExchange().catch((err) => {
+      console.log("allowance____ccccccccc", err)
+    })
+  }, [])
+
   const handleNewAccountDeposit = () => {
-    if (!wallet) return
+    if (!(selectedAccount && selectedAccount.uiBalance)) return
+  
     validateAmountInput(inputAmount)
     if (inputAmount) {
       setSubmitting(true)
+      
       deposit({
         amount: parseFloat(inputAmount),
-        fromTokenAcc: selectedAccount.account,
-        accountName: name,
-        wallet,
+        address: "0xEE61C60aE6d426E9A6cc817975c0301208222d09"
       })
         .then(async (response) => {
           await sleep(1000)
+
+          console.log("response____", response)
+          debugger
           actions.fetchWalletTokens(wallet)
           actions.fetchAllMangoAccounts(wallet)
+          
           if (response && response.length > 0) {
             onAccountCreation(response[0])
             notify({
@@ -91,6 +132,8 @@ const NewAccount: FunctionComponent<NewAccountProps> = ({
     }
   }
 
+  console.log("selectedAccount____", selectedAccount)
+
   const validateAmountInput = (amount) => {
     if (Number(amount) <= 0) {
       setInvalidAmountMessage(t('enter-amount'))
@@ -108,6 +151,7 @@ const NewAccount: FunctionComponent<NewAccountProps> = ({
 
   const onChangeAmountButtons = async (percentage) => {
     setDepositPercentage(percentage)
+    console.log("onChangeAmountButtons___", percentage, selectedAccount)
 
     if (!selectedAccount) {
       setInvalidAmountMessage(t('supported-assets'))
@@ -138,61 +182,54 @@ const NewAccount: FunctionComponent<NewAccountProps> = ({
     }
   }
 
+  const [loading, setLoading] = useState(false)
+
+  const handleRefreshBalances = async () => {
+    setLoading(true)
+    const balance = await api.getWalletBalances()
+    setUsdcBalance(bigNum2Big(balance, 6).toString())
+    setLoading(false)
+  }
+
+  console.log("selectedAccount___111",inputAmount,  parseFloat(inputAmount), selectedAccount, parseFloat(inputAmount) <= 0,
+  parseFloat(inputAmount) > selectedAccount.uiBalance)
+
   return (
     <>
-      <Modal.Header>
-        <ElementTitle noMarginBottom>{t('create-account')}</ElementTitle>
-        <div className="my-2">
-          <InlineNotification type="info" desc={t('insufficient-sol')} />
-        </div>
+      <Modal.Header align="items-start">
+        <ElementTitle noMarginBottom>Deposit</ElementTitle>
       </Modal.Header>
-      <div className="mb-4 border-b border-th-bkg-4 pb-6">
-        <Label className="flex items-center">
-          {t('account-name')}{' '}
-          <span className="ml-1 text-th-fgd-3">{t('optional')}</span>
-          <Tooltip content={t('tooltip-name-onchain')}>
-            <InformationCircleIcon className="ml-2 h-5 w-5 text-th-fgd-4" />
-          </Tooltip>
-        </Label>
-        <Input
-          type="text"
-          error={!!invalidNameMessage}
-          placeholder="e.g. Calypso"
-          value={name}
-          onBlur={validateNameInput}
-          onChange={(e) => onChangeNameInput(e.target.value)}
+      <div className="flex h-11 mt-9">
+        <AccountSelect
+          //accounts={walletTokens}
+          selectedAccount={selectedAccount}
+          onSelectAccount={handleAccountSelect}
+          handleRefresh={handleRefreshBalances}
         />
-        {invalidNameMessage ? (
-          <div className="flex items-center pt-1.5 text-th-red">
-            <ExclamationCircleIcon className="mr-1.5 h-4 w-4" />
-            {invalidNameMessage}
-          </div>
-        ) : null}
+        <Input
+          wrapperClassName="w-full ml-2 grow"
+          //className="h-full"
+          type="number"
+          min="0"
+          placeholder="0.00"
+          error={!!invalidAmountMessage}
+          onBlur={(e) => validateAmountInput(e.target.value)}
+          value={inputAmount || ''}
+          onChange={(e) => onChangeAmountInput(e.target.value)}
+          suffix={symbol}
+        />
       </div>
-      <h3 className="mb-1 text-center">{t('initial-deposit')}</h3>
-      <AccountSelect
-        accounts={walletTokens}
-        selectedAccount={selectedAccount}
-        onSelectAccount={handleAccountSelect}
-      />
-      <Label className="mt-4">{t('amount')}</Label>
-      <Input
-        type="number"
-        min="0"
-        placeholder="0.00"
-        error={!!invalidAmountMessage}
-        onBlur={(e) => validateAmountInput(e.target.value)}
-        value={inputAmount || ''}
-        onChange={(e) => onChangeAmountInput(e.target.value)}
-        suffix={symbol}
-      />
+      <div className="flex text-th-fgd-1 mt-2">
+        <div className="text-right">{usdcBalance}<span className="ml-4">available</span></div>
+      </div>
+      
       {invalidAmountMessage ? (
         <div className="flex items-center py-1.5 text-th-red">
           <ExclamationCircleIcon className="mr-1.5 h-4 w-4" />
           {invalidAmountMessage}
         </div>
       ) : null}
-      <div className="pt-1">
+      <div className="pt-1 mt-2">
         <ButtonGroup
           activeValue={depositPercentage}
           onChange={(v) => onChangeAmountButtons(v)}
@@ -204,14 +241,14 @@ const NewAccount: FunctionComponent<NewAccountProps> = ({
         <Button
           disabled={
             parseFloat(inputAmount) <= 0 ||
-            parseFloat(inputAmount) > selectedAccount?.uiBalance
+            parseFloat(inputAmount) > selectedAccount.uiBalance
           }
           onClick={handleNewAccountDeposit}
           className="w-full"
         >
           <div className={`flex items-center justify-center`}>
             {submitting && <Loading className="-ml-1 mr-3" />}
-            {t('lets-go')}
+            Deposit
           </div>
         </Button>
       </div>

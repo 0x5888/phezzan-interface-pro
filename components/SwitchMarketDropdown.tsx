@@ -14,21 +14,12 @@ const SwitchMarketDropdown = () => {
 
   const marketsInfo = useMangoStore((s) => s.marketsInfo)
 
-  console.log("marketsInfo______", marketsInfo)
-
   const perpMarketsInfo = useMemo(
-    () =>
-      marketsInfo
-        .filter((mkt) => mkt?.name.includes('PERP'))
-        .sort((a, b) => b.volumeUsd24h - a.volumeUsd24h),
-    [marketsInfo]
-  )
-
-  const spotMarketsInfo = useMemo(
-    () =>
-      marketsInfo
-        .filter((mkt) => mkt?.name.includes('USDC'))
-        .sort((a, b) => b.volumeUsd24h - a.volumeUsd24h),
+    () => {
+      return (marketsInfo || []).map((v) => {
+        return v
+      }).sort((a, b) => b.volumeUsd24h - a.volumeUsd24h)
+    },
     [marketsInfo]
   )
 

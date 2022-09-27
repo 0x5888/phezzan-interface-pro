@@ -44,6 +44,7 @@ import { DEFAULT_SPOT_MARGIN_KEY } from '../SettingsModal'
 import { useWallet } from '@solana/wallet-adapter-react'
 import usePrevious from 'hooks/usePrevious'
 import api from "utils/api";
+import DepositModal from '../DepositModal'
 
 const MAX_SLIPPAGE_KEY = 'maxSlippage'
 
@@ -634,6 +635,29 @@ export default function AdvancedTradeForm({
 
   const [has, setHas] = useLocalStorageState('positions', 1)
 
+  const handleSubmit = async () => {
+    try {
+      await api.submitOrder(
+        //this.props.currentMarket,
+        "ETH-USDC",
+        //this.props.side,
+        "b",
+
+        //price,
+        1000,
+        //baseAmount,
+        500,
+        //quoteAmount,
+        600,
+        //this.props.orderType
+        "limit"
+      );
+    } catch (e) {
+      console.log("submit err", e);
+  
+    }
+  }
+
   const flag = true;
   async function onSubmit() {
     if (flag) {
@@ -647,7 +671,6 @@ export default function AdvancedTradeForm({
         );
       } catch (e) {
         console.log("ERR____", e);
-        //toast.error(e.message);
       }
 
       setTimeout(() => {
@@ -874,7 +897,28 @@ export default function AdvancedTradeForm({
     }
   }
 
-  console.log("initLeverage___", isTriggerOrder, insufficientSol, initLeverage, marketConfig.name, marketConfig)
+  const [isApproveLoading, setApproving] = useState(false)
+
+  const [showDepositModal, setShowDepositModal] = useState(false)
+
+  const [isEnoughAllowance, setAllowance] = useState(false)
+
+  const handleDeposit = () => {
+
+  }
+
+  const handleApprove = () => {
+    setApproving(true);
+    api
+      .approveSpendOfCurrency("USDC")
+      .then(() => {
+        setApproving(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setApproving(false);
+      });
+  }
 
   return (
     <div className="bg-[#1F2025]">
@@ -888,6 +932,37 @@ export default function AdvancedTradeForm({
         </div>
       ) : null}
       <div className="grid grid-cols-12 gap-x-1.5 gap-y-0.5 text-left mt-4">
+        {showDepositModal && (
+          <DepositModal
+            isOpen={showDepositModal}
+            onClose={() => setShowDepositModal(false)}
+            //tokenSymbol={actionSymbol}                    
+            // repayAmount={
+            //   balance.borrows.toNumber() > 0
+            //     ? balance.borrows.toFixed()
+            //     : ''
+            // }
+          />
+        )}
+        <div className="col-span-12 flex justify-between">
+          <label className="text-xxs text-th-fgd-3">AVBL</label>
+          <div
+            //isLoading={isApproveLoading}
+            className="flex cursor-pointer"
+            
+            //onClick={isEnoughAllowance ? handleDeposit : handleApprove}
+            onClick={() => setShowDepositModal(true)}
+          >
+            <span>1024 USDT</span>
+            <img
+              alt=""
+              width="18"
+              //height="16"
+              src={`/assets/icons/dark_icon_recharge@2x.png`}
+              className={`ml-2.5`}
+            />
+          </div>
+        </div>
         <div className="col-span-12">
           <label className="text-xxs text-th-fgd-3">{t('type')}</label>
           <TradeType
@@ -1172,7 +1247,8 @@ export default function AdvancedTradeForm({
             {canTrade ? (
               <button
                 //disabled={disabledTradeButton}
-                onClick={onSubmit}
+                //onClick={onSubmit}
+                onClick={handleSubmit}
                 className={`flex-grow rounded-full px-6 py-2 font-bold text-white focus:outline-none disabled:cursor-not-allowed disabled:bg-th-bkg-4 disabled:text-th-fgd-4 ${
                   side === 'buy' ? 'bg-th-green-dark' : 'bg-th-red'
                 }`}

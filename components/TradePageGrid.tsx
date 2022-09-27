@@ -101,7 +101,6 @@ const TradePageGrid: React.FC = () => {
   )
 
   const onBreakpointChange = (newBreakpoint: string) => {
-    console.log("newBreakpoint___", newBreakpoint)
     setCurrentBreakpoint(newBreakpoint)
   }
 

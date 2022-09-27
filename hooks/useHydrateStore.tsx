@@ -78,16 +78,16 @@ const useHydrateStore = () => {
 
   // Fetches mango group as soon as page loads
   useEffect(() => {
-    actions.fetchMangoGroup()
+    //actions.fetchMangoGroup()
   }, [actions])
 
   // Fetch markets info once mango group is loaded
   useEffect(() => {
-    actions.fetchMarketsInfo()
+    //actions.fetchMarketsInfo()
   }, [mangoGroup])
 
   useInterval(() => {
-    actions.fetchMangoGroupCache()
+    //actions.fetchMangoGroupCache()
   }, 12 * SECONDS)
 
   useInterval(() => {
@@ -105,8 +105,8 @@ const useHydrateStore = () => {
   }, 90 * SECONDS)
 
   useInterval(() => {
-    actions.fetchMangoGroup()
-    actions.fetchMarketsInfo()
+    //actions.fetchMangoGroup()
+    //actions.fetchMarketsInfo()
     if (wallet) {
       actions.fetchWalletTokens(wallet)
     }
@@ -115,27 +115,19 @@ const useHydrateStore = () => {
   useEffect(() => {
     if (!marketConfig || !markets) return
 
-    const market = markets[marketConfig.publicKey.toString()]
+    const market = markets[marketConfig?.publicKey?.toString()]
     if (!market) return
     setMangoStore((state) => {
-      console.log("找到了__1",
-        market,
-        state.accountInfos[marketConfig.bidsKey.toString()]
-      )
-      console.log("找到了", decodeBookL2(
-        market,
-        state.accountInfos[marketConfig.bidsKey.toString()]
-      ))
       state.selectedMarket.current = market
 
-      state.selectedMarket.orderBook.bids = decodeBookL2(
-        market,
-        state.accountInfos[marketConfig.bidsKey.toString()]
-      )
-      state.selectedMarket.orderBook.asks = decodeBookL2(
-        market,
-        state.accountInfos[marketConfig.asksKey.toString()]
-      )
+      // state.selectedMarket.orderBook.bids = decodeBookL2(
+      //   market,
+      //   state.accountInfos[marketConfig.bidsKey.toString()]
+      // )
+      // state.selectedMarket.orderBook.asks = decodeBookL2(
+      //   market,
+      //   state.accountInfos[marketConfig.asksKey.toString()]
+      // )
     })
   }, [marketConfig, markets, setMangoStore])
 
@@ -237,10 +229,10 @@ const useHydrateStore = () => {
           setMangoStore((state) => {
             state.accountInfos[marketConfig.bidsKey.toString()] = info
 
-            state.selectedMarket.orderBook.bids = decodeBookL2(
-              selectedMarket,
-              info
-            )
+            // state.selectedMarket.orderBook.bids = decodeBookL2(
+            //   selectedMarket,
+            //   info
+            // )
           })
         }
       }
@@ -261,10 +253,10 @@ const useHydrateStore = () => {
           setMangoStore((state) => {
             state.accountInfos[marketConfig.asksKey.toString()] = info
 
-            state.selectedMarket.orderBook.asks = decodeBookL2(
-              selectedMarket,
-              info
-            )
+            // state.selectedMarket.orderBook.asks = decodeBookL2(
+            //   selectedMarket,
+            //   info
+            // )
           })
         }
       }

@@ -86,9 +86,11 @@ export const DEFAULT_MANGO_GROUP_CONFIG = Config.ids().getGroup(
   CLUSTER,
   DEFAULT_MANGO_GROUP_NAME
 ) as GroupConfig
+
 const defaultMangoGroupIds = IDS['groups'].find(
   (group) => group.name === DEFAULT_MANGO_GROUP_NAME
 )
+
 export const MNGO_INDEX = defaultMangoGroupIds!.oracles.findIndex(
   (t) => t.symbol === 'MNGO'
 )
@@ -116,9 +118,9 @@ interface AccountInfoList {
 }
 
 export interface WalletToken {
-  account: TokenAccount
-  config: TokenConfig
-  uiBalance: number
+  account?: TokenAccount
+  config?: TokenConfig
+  uiBalance?: number
 }
 
 export interface Orderbook {
@@ -220,12 +222,13 @@ export type MangoStore = {
     blockhashTimes: BlockhashTimes[]
   }
   selectedMarket: {
-    config: MarketConfig
+    config: MarketConfig | any
     current: Market | PerpMarket | null
     markPrice: number
     kind: string
-    orderBook: Orderbook
-    fills: any[]
+    orderBook: Orderbook,
+    fills: any[],
+    marketFills: any
   }
   mangoGroups: Array<MangoGroup>
   selectedMangoGroup: {
@@ -401,6 +404,26 @@ const useMangoStore = create<
       },
       blockhashCommitment: 'confirmed',
     })
+
+    console.log("data___", getMarketByBaseSymbolAndKind(
+      DEFAULT_MANGO_GROUP_CONFIG,
+      defaultMarket.base,
+      defaultMarket.kind
+    ))
+
+    const DEFAULT_CONFIG = {
+      "kind": "perp",
+      "name": "SOL-PERP",
+      "publicKey": "2TgaaVoHgnSeEtXvWTx13zQeTf4hYWAMEiMQdcG6EwHi",
+      "baseSymbol": "SOL",
+      "baseDecimals": 9,
+      "quoteDecimals": 6,
+      "marketIndex": 3,
+      "bidsKey": "Fu8q5EiFunGwSRrjFKjRUoMABj5yCoMEPccMbUiAT6PD",
+      "asksKey": "9qUxMSWBGAeNmXusQHuLfgSuYJqADyYoNLwZ63JJSi6V",
+      "eventsKey": "31cKs646dt1YkA3zPyxZ7rUAkxTBz279w4XEobFXcAKP"
+  }
+
     return {
       marketsInfo: [],
       notificationIdCounter: 0,
@@ -424,15 +447,12 @@ const useMangoStore = create<
         cache: null,
       },
       selectedMarket: {
-        config: getMarketByBaseSymbolAndKind(
-          DEFAULT_MANGO_GROUP_CONFIG,
-          defaultMarket.base,
-          defaultMarket.kind
-        ) as MarketConfig,
+        config: DEFAULT_CONFIG,
         kind: defaultMarket.kind,
         current: null,
         markPrice: 0,
         orderBook: { bids: [], asks: [] },
+        marketFills: {},
         fills: [],
       },
       mangoGroups: [],
@@ -511,7 +531,6 @@ const useMangoStore = create<
       set: (fn) => set(produce(fn)),
       actions: {
         setWallet(payload: any) {
-          console.log("payload____", payload)
           const set = get().set
           if (payload?.id) {
             set((state) => {
@@ -527,6 +546,7 @@ const useMangoStore = create<
           }
         },
         fetchMarketTrades(payload: any, args: any) {
+          const set = get().set
 
           payload[0].forEach((fill) => {
             const fillid = fill[1];
@@ -547,7 +567,9 @@ const useMangoStore = create<
             // time: 1662449293023
 
             if (["f", "pf", "m"].includes(fill[6])) {
-              console.log("fill______", fill)
+              set((state) => {
+                state.selectedMarket.marketFills[fillid] = fill || [];
+              });
             }
 
             // if (
@@ -561,7 +583,7 @@ const useMangoStore = create<
 
         },
         fetchOrderBook(payload: any, args: any) {
-          console.log("fetchOrderBook_____", payload, args);
+          const set = get().set
 
 
           // liquidity.forEach((liq) => {
@@ -586,8 +608,8 @@ const useMangoStore = create<
           //   }
           // });
 
-          const orderbookAsks = [];
-          const orderbookBids = [];
+          let orderbookAsks = [];
+          let orderbookBids = [];
 
           if (payload[1]) {
             const list = payload[2]
@@ -600,24 +622,25 @@ const useMangoStore = create<
 
               if (side === "b") {
                 // use
-                //orderbookBids.push([price, quantity])
+                orderbookBids.push([price, quantity])
               }
 
               if (side === "s") {
                 // use
-                //orderbookAsks.push([price, quantity])
+                orderbookAsks.push([price, quantity])
               }
-            }
+            }            
 
             if (Array.isArray(orderbookBids) && orderbookBids.length > 0) {
+              console.log("orderbookBids_____", orderbookBids)
               set((state) => {
-                state.selectedMarket.orderBook.bids = orderbookBids || []
+                state.selectedMarket.orderBook.bids = [...(orderbookBids || [])]
               });
             }
 
             if (Array.isArray(orderbookAsks) && orderbookAsks.length > 0) {
               set((state) => {
-                state.selectedMarket.orderBook.asks = orderbookAsks  || []
+                state.selectedMarket.orderBook.asks = [...(orderbookAsks || [])]
               })
             }
           }
@@ -787,6 +810,7 @@ const useMangoStore = create<
           const set = get().set
           const mangoGroupConfig = get().selectedMangoGroup.config
           const selectedMarketConfig = get().selectedMarket.config
+          console.log("selectedMarketConfig___1", selectedMarketConfig)
           const mangoClient = get().connection.client
           const connection = get().connection.current
           const actions = get().actions
@@ -795,11 +819,13 @@ const useMangoStore = create<
             .getMangoGroup(mangoGroupPk)
             .then(async (mangoGroup) => {
               mangoGroup.loadCache(connection).then((mangoCache) => {
+                console.log("mangoCache___", mangoCache)
                 set((state) => {
                   state.selectedMangoGroup.cache = mangoCache
                 })
               })
               mangoGroup.loadRootBanks(connection).then(() => {
+                console.log("mangoGroup___", mangoGroup)
                 set((state) => {
                   state.selectedMangoGroup.current = mangoGroup
                 })
@@ -816,10 +842,14 @@ const useMangoStore = create<
                 const resp = await Promise.all([
                   getMultipleAccounts(connection, allMarketPks),
                   getMultipleAccounts(connection, allBidsAndAsksPks),
-                ])
+                ]);
+
+                console.log("resp____", resp)
+
                 allMarketAccountInfos = resp[0]
                 allBidsAndAsksAccountInfos = resp[1]
               } catch {
+                console.log("error________")
                 notify({
                   type: 'error',
                   title: 'Failed to load the mango group. Please refresh.',
@@ -827,18 +857,6 @@ const useMangoStore = create<
               }
 
               const allMarketAccounts = allMarketConfigs.map((config, i) => {
-                if (config.kind == 'spot') {
-                  const decoded = Market.getLayout(programId).decode(
-                    allMarketAccountInfos[i].accountInfo.data
-                  )
-                  return new Market(
-                    decoded,
-                    config.baseDecimals,
-                    config.quoteDecimals,
-                    undefined,
-                    mangoGroupConfig.serumProgramId
-                  )
-                }
                 if (config.kind == 'perp') {
                   const decoded = PerpMarketLayout.decode(
                     allMarketAccountInfos[i].accountInfo.data
@@ -857,9 +875,13 @@ const useMangoStore = create<
                 allMarketAccounts
               )
 
+              console.log("allMarkets____", allMarkets)
+
               const currentSelectedMarket = allMarketAccounts.find((mkt) =>
                 mkt?.publicKey.equals(selectedMarketConfig.publicKey)
               )
+
+              console.log("currentSelectedMarket___", currentSelectedMarket)
 
               set((state) => {
                 state.selectedMangoGroup.markets = allMarkets
@@ -881,12 +903,14 @@ const useMangoStore = create<
                           )
                         }
                       })
+
                       if (perpMarket) {
                         accountInfo['parsed'] = decodeBook(
                           perpMarket,
                           accountInfo
                         )
                       }
+                      console.log("perpMarket____", perpMarket)
                       state.accountInfos[publicKey.toBase58()] = accountInfo
                     }
                   }
@@ -898,6 +922,7 @@ const useMangoStore = create<
                 actions.fetchMangoGroup()
                 mangoGroupRetryAttempt++
               } else {
+                console.log("error________111")
                 notify({
                   title: 'Failed to load mango group. Please refresh',
                   description: `${err}`,
@@ -1049,7 +1074,6 @@ const useMangoStore = create<
         async loadMarketFills() {
           const set = get().set
           const selectedMarket = get().selectedMarket.current
-          console.log("selectedMarket____222", selectedMarket)
           const connection = get().connection.current
           if (!selectedMarket) {
             return null
@@ -1281,8 +1305,6 @@ const useMangoStore = create<
           
           const chainId = payload[1];
 
-          console.log("gethMarketsInfo____", payload, args)
-
           //baseSymbol: "BTC"
           //baseVolume24h: 5.490100000000003
           //bestAsk: 19811.2
@@ -1311,14 +1333,13 @@ const useMangoStore = create<
 
             const quoteVolume = update[3];
 
-            console.log("market____111", market, price, change)
 
             if (!price || Number.isNaN(price)) return;
 
             // @ts-ignore
             parsedMarketsInfo.push({
               // @ts-ignore
-              baseSymbol: "BTC",
+              baseSymbol: (market.split("-"))[0].toUpperCase(),
               // @ts-ignore
               baseVolume24h: 5.490100000000003,
               // @ts-ignore
@@ -1355,7 +1376,7 @@ const useMangoStore = create<
               volumeUsd24h: 108801.44890999993
             })
 
-            //if (!state.lastPrices[chainId]) state.lastPrices[chainId] = {};
+            // if (!state.lastPrices[chainId]) state.lastPrices[chainId] = {};
 
             // state.lastPrices[chainId][market] = {
             //   price: update[1],
@@ -1392,6 +1413,8 @@ const useMangoStore = create<
               `https://mango-all-markets-api.herokuapp.com/markets/`
             )
 
+            console.log("data____", data)
+
             if (data?.status === 200) {
               const parsedMarketsInfo = (await data.json()).filter((market) => {
                 const marketKind = market.name.includes('PERP')
@@ -1403,6 +1426,9 @@ const useMangoStore = create<
                   market.baseSymbol,
                   marketKind
                 )
+
+                console.log("marketConfig___", marketConfig)
+
                 if (!marketConfig || !marketConfig.publicKey) return false
 
                 const marketMode: MarketMode =
@@ -1415,9 +1441,12 @@ const useMangoStore = create<
 
                 return !isInactive
               })
-              set((state) => {
-                state.marketsInfo = parsedMarketsInfo
-              })
+              
+              // mango state
+              // set((state) => {
+              //   state.marketsInfo = parsedMarketsInfo
+              // })
+
             }
           } catch (e) {
             console.log('ERORR: Unable to load all market info')

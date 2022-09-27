@@ -21,8 +21,12 @@ const notImplemented = function (method) {
       this.api = api
       this.network = network
       //this.websocketUrl = process.env.REACT_APP_ZIGZAG_WS;
+
+
       this.websocketUrl = "ws://50.18.218.83:3004";
       const ws = "ws://50.18.218.83:3004";
+      // this.websocketUrl = "wss://zigzag-exchange.herokuapp.com";
+      // const ws = "wss://zigzag-exchange.herokuapp.com";
 
       console.log("ws_______", ws);
 

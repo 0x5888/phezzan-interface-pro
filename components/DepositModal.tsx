@@ -167,14 +167,9 @@ const DepositModal: FunctionComponent<DepositModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <Modal.Header>
-        <ElementTitle noMarginBottom>{t('deposit-funds')}</ElementTitle>
+      <Modal.Header align="items-start">
+        <ElementTitle noMarginBottom>Deposit</ElementTitle>
       </Modal.Header>
-      {!mangoAccount ? (
-        <div className="mb-4 mt-2 text-center text-xs text-th-fgd-3">
-          {t('first-deposit-desc')}
-        </div>
-      ) : null}
       {tokenSymbol && !selectedAccount ? (
         <div className="mb-4">
           <InlineNotification
@@ -195,31 +190,29 @@ const DepositModal: FunctionComponent<DepositModalProps> = ({
           />
         </div>
       ) : null}
-      {mangoAccounts.length > 1 ? (
-        <div className="mb-4">
-          <Label>{t('to-account')}</Label>
-          <MangoAccountSelect
-            onChange={(v) => setDepositMangoAccount(v)}
-            value={depositMangoAccount}
-          />
-        </div>
-      ) : null}
-      <AccountSelect
-        accounts={walletTokens}
-        selectedAccount={selectedAccount}
-        onSelectAccount={handleAccountSelect}
-      />
-      <Label className={`mt-4`}>{t('amount')}</Label>
-      <Input
-        type="number"
-        min="0"
-        placeholder="0.00"
-        error={!!invalidAmountMessage}
-        onBlur={(e) => validateAmountInput(e.target.value)}
-        value={inputAmount || ''}
-        onChange={(e) => onChangeAmountInput(e.target.value)}
-        suffix={selectedAccount?.config.symbol}
-      />
+      <div className="flex h-11 mt-9">
+        <AccountSelect
+          //accounts={walletTokens}
+          selectedAccount={selectedAccount}
+          onSelectAccount={handleAccountSelect}
+        />
+        <Input
+          wrapperClassName="w-full ml-2 grow"
+          type="number"
+          min="0"
+          placeholder="0.00"
+          error={!!invalidAmountMessage}
+          onBlur={(e) => validateAmountInput(e.target.value)}
+          value={inputAmount || ''}
+          onChange={(e) => onChangeAmountInput(e.target.value)}
+          suffix={selectedAccount?.config.symbol}
+        />
+      </div>
+      <div className="flex text-th-fgd-1 mt-2">
+        {/* <div className="text-right">{usdcBalance}<span className="ml-4">available</span></div> */}
+      </div>
+      
+      
       {invalidAmountMessage ? (
         <div className="flex items-center pt-1.5 text-th-red">
           <ExclamationCircleIcon className="mr-1.5 h-4 w-4" />
@@ -257,11 +250,6 @@ const DepositModal: FunctionComponent<DepositModalProps> = ({
           </div>
         </Button>
       </div>
-      {!repayAmount ? (
-        <div className="pt-3">
-          <InlineNotification desc={t('interest-info')} type="info" />
-        </div>
-      ) : null}
     </Modal>
   )
 }

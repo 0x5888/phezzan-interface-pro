@@ -1,13 +1,15 @@
 import { ChartTradeType } from '../@types/types'
 
-const baseUrl = 'https://event-history-api-candles.herokuapp.com'
-// const baseUrl = 'http://localhost:4000'
+//const baseUrl = 'https://event-history-api-candles.herokuapp.com'
+//const baseUrl = 'http://localhost:4000'
+const baseUrl = 'https://api.binance.com/api/v3'
 
 export default class ChartApi {
   static URL = `${baseUrl}/`
 
   static async get(path: string) {
     try {
+      console.log("path____", path)
       const response = await fetch(this.URL + path)
       if (response.ok) {
         const responseJson = await response.json()
@@ -23,13 +25,6 @@ export default class ChartApi {
     return null
   }
 
-  static async getRecentTrades(
-    marketAddress: string
-  ): Promise<ChartTradeType[] | null> {
-    if (!marketAddress) return null
-    return ChartApi.get(`trades/address/${marketAddress}`)
-  }
-
   static async getOhlcv(
     symbol: string,
     resolution: string,
@@ -43,4 +38,4 @@ export default class ChartApi {
   }
 }
 
-export const CHART_DATA_FEED = `${baseUrl}/tv`
+export const CHART_DATA_FEED = `${baseUrl}/klines`

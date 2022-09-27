@@ -66,8 +66,12 @@ const Modal: any = React.forwardRef<any, any>((props, ref) => {
   )
 })
 
-const Header = ({ children }) => {
-  return <div className={`flex flex-col items-center pb-2`}>{children}</div>
+const Header = ({ children, align}) => {
+  if (align) {
+    return <div className={`flex flex-col ${align} pb-`}>{children}</div>
+  }
+  
+  return <div className={`flex flex-col items-center pb-`}>{children}</div>
 }
 
 Modal.Header = Header

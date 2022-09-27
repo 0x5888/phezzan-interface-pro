@@ -21,7 +21,7 @@ const Button: FunctionComponent<ButtonProps> = ({
       disabled={disabled}
       className={`whitespace-nowrap rounded-full ${
         primary ? 'bg-th-bkg-button' : 'border border-th-fgd-4'
-      } px-6 py-2 font-bold text-th-fgd-1 focus:outline-none disabled:cursor-not-allowed disabled:bg-th-bkg-4 disabled:text-th-fgd-4 md:hover:brightness-[1.1] md:disabled:hover:brightness-100 ${className}`}
+      } px-6 py-2 font-bold text-th-fgd-5 focus:outline-none disabled:cursor-not-allowed disabled:bg-th-bkg-4 disabled:text-th-fgd-4 md:hover:brightness-[1.1] md:disabled:hover:brightness-100 ${className}`}
       {...props}
     >
       {children}

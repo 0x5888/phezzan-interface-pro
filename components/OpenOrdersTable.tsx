@@ -45,16 +45,15 @@ const DesktopTable = ({
     setModifiedOrderPrice(order.price)
   }
 
+  console.log("openOrders___", openOrders)
+
   const renderMarketName = (market: MarketConfig) => {
-    const location =
-      market.kind === 'spot'
-        ? `/?name=${market.baseSymbol}%2FUSDC`
-        : `/?name=${market.name}`
+    const location =   `/?name=${market?.name}`
     if (!asPath.includes(location)) {
       return (
         <Link href={location} shallow={true}>
           <a className="text-th-fgd-1 underline hover:text-th-fgd-1 hover:no-underline">
-            {market.name}
+            {market?.name}
           </a>
         </Link>
       )
@@ -65,7 +64,7 @@ const DesktopTable = ({
 
   return (
     <Table>
-      <thead>
+      <thead className="h-12">
         <TrHead>
           <Th>{t('market')}</Th>
           <Th>{t('side')}</Th>
@@ -80,8 +79,9 @@ const DesktopTable = ({
       </thead>
       <tbody>
         {openOrders.map(({ order, market }, index) => {
-          const decimals = getDecimalCount(market.account.tickSize)
+          const decimals = getDecimalCount(market?.account?.tickSize)
           const editThisOrder = editOrderIndex === index
+
           return (
             <TrBody key={`${order.orderId}${order.side}`}>
               <Td className="w-[14.286%]">
@@ -90,26 +90,26 @@ const DesktopTable = ({
                     alt=""
                     width="20"
                     height="20"
-                    src={`/assets/icons/${market.config.baseSymbol.toLowerCase()}.svg`}
+                    src={`/assets/icons/${market?.config?.baseSymbol.toLowerCase()}.svg`}
                     className={`mr-2.5`}
                   />
                   <span className="whitespace-nowrap">
-                    {renderMarketName(market.config)}
+                    {renderMarketName(market?.config)}
                   </span>
                 </div>
               </Td>
               <Td className="w-[14.286%]">
-                <SideBadge side={order.side} />
+                <SideBadge side={order?.side} />
               </Td>
               {editOrderIndex !== index ? (
                 <>
                   <Td className="w-[14.286%]">
-                    {order.size.toLocaleString(undefined, {
+                    {order?.size?.toLocaleString(undefined, {
                       maximumFractionDigits: 4,
                     })}
                   </Td>
                   <Td className="w-[14.286%]">
-                    {usdFormatter(order.price, decimals)}
+                    {usdFormatter(order?.price, decimals)}
                   </Td>
                 </>
               ) : (
@@ -134,7 +134,7 @@ const DesktopTable = ({
                 </>
               )}
               <Td className="w-[14.286%]">
-                {editThisOrder ? '' : formatUsdValue(order.price * order.size)}
+                {editThisOrder ? '' : formatUsdValue(order?.price * order?.size)}
               </Td>
               <Td className="w-[14.286%]">
                 {order.perpTrigger &&
@@ -166,7 +166,7 @@ const DesktopTable = ({
                         )}
                       </Button>
                       {openOrders.filter(
-                        (o) => o.market.config.name === market.config.name
+                        (o) => o.market?.config?.name === market?.config?.name
                       ).length > 1 ? (
                         <Button
                           onClick={() => handleCancelAllOrders(market.account)}
@@ -367,7 +367,17 @@ const OpenOrdersTable = () => {
   const { t } = useTranslation('common')
   const { asPath } = useRouter()
   const { wallet } = useWallet()
-  const openOrders = useMangoStore((s) => s.selectedMangoAccount.openOrders)
+
+  //const openOrders = useMangoStore((s) => s.selectedMangoAccount.openOrders)
+  const openOrders = [{
+    order: {
+      side: "buy",
+      price: "99999"
+    }, 
+    market: {}
+  }]
+  
+  
   const [cancelId, setCancelId] = useState<any>(null)
   const [modifyId, setModifyId] = useState<any>(null)
   const [editOrderIndex, setEditOrderIndex] = useState(null)
@@ -585,6 +595,7 @@ const OpenOrdersTable = () => {
     return [...openOrders].sort((a, b) => b.price - a.price)
   }, [openOrders])
 
+
   const tableProps = {
     openOrders: sortedOpenOrders,
     cancelledOrderId: cancelId,
@@ -598,8 +609,8 @@ const OpenOrdersTable = () => {
 
   return (
     <div className={`flex flex-col sm:pb-4`}>
-      <div className={`overflow-x-auto sm:-mx-6 lg:-mx-8`}>
-        <div className={`inline-block min-w-full align-middle sm:px-6 lg:px-8`}>
+      <div className={`overflow-x-auto`}>
+        <div className={`inline-block min-w-full align-middle sm:px-2 lg:px-4`}>
           {openOrders && openOrders.length > 0 ? (
             !isMobile ? (
               <DesktopTable {...tableProps} />

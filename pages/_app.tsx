@@ -43,6 +43,7 @@ import useSpotBalances from 'hooks/useSpotBalances'
 import Layout from 'components/Layout'
 
 const SENTRY_URL = process.env.NEXT_PUBLIC_SENTRY_URL
+
 if (SENTRY_URL) {
   Sentry.init({
     dsn: SENTRY_URL,
@@ -129,13 +130,18 @@ const PageTitle = () => {
   const market = useMangoStore((s) => s.selectedMarket.current)
   const oraclePrice = useOraclePrice()
   const selectedMarketName = marketConfig.name
+  // const marketTitleString =
+  //   marketConfig && router.pathname == '/'
+  //     ? `${
+  //         oraclePrice
+  //           ? oraclePrice.toFixed(getDecimalCount(market?.tickSize)) + ' | '
+  //           : ''
+  //       }${selectedMarketName} - `
+  //     : ''
+
   const marketTitleString =
     marketConfig && router.pathname == '/'
-      ? `${
-          oraclePrice
-            ? oraclePrice.toFixed(getDecimalCount(market?.tickSize)) + ' | '
-            : ''
-        }${selectedMarketName} - `
+      ? `${selectedMarketName} - `
       : ''
 
   return (

@@ -614,6 +614,15 @@ export default class API extends Emitter {
     return true;
   };
 
+  deposit = async (amount, address) => {
+    console.log("apiProvider___", this.apiProvider, amount, address);
+    return this.apiProvider.deposit(address, amount, {
+        gasLimit: 2500000,
+        gasPrice: 550000000
+      }
+    )
+  };
+
   depositL2 = async (amount, token, address) => {
     return this.apiProvider.depositL2(amount, token, address);
   };
@@ -685,9 +694,12 @@ export default class API extends Emitter {
 
   approveSpendOfCurrency = async (currency) => {
     const netContract = this.getNetworkContract();
+    console.log("netContract___", netContract)
     if (netContract) {
       const [account] = await this.web3.eth.getAccounts();
       const currencyInfo = this.getCurrencyInfo(currency);
+      console.log("account___", account, currencyInfo, this.lastPrices)
+      debugger
       const contract = new this.web3.eth.Contract(
         erc20ContractABI,
         currencyInfo.address
@@ -701,9 +713,14 @@ export default class API extends Emitter {
     }
   };
 
+  allowanceExchange = async () => {
+    return await this.apiProvider.allowanceExchange()
+  }
+
   getBalanceOfCurrency = async (currency) => {
     const currencyInfo = this.getCurrencyInfo(currency);
     let result = { balance: 0, allowance: ethersConstants.Zero };
+    console.log("getBalanceOfCurrency___", this.mainnetProvider)
     if (!this.mainnetProvider) return result;
 
     try {
@@ -773,6 +790,12 @@ export default class API extends Emitter {
     const balances = await this.apiProvider.getBalances();
     console.log("balanceUpdate_____222", balances)
     this.emit("balanceUpdate", this.apiProvider.network, balances);
+    return balances;
+  };
+
+  getWalletBalances = async () => {
+    const balances = await this.apiProvider.getWalletBalances();
+    console.log("balanceUpdate_____222__333", balances)
     return balances;
   };
 
@@ -922,9 +945,14 @@ export default class API extends Emitter {
     if (pairs.length === 0) return;
     if (!this.apiProvider.network) return;
     const pairText = pairs.join(",");
+    // const url = (this.apiProvider.network === 1)
+    //   ? `https://zigzag-markets.herokuapp.com/markets?id=${pairText}&chainid=${this.apiProvider.network}`
+    //   : `https://secret-thicket-93345.herokuapp.com/api/v1/marketinfos?chain_id=${this.apiProvider.network}&market=${pairText}`
+
     const url = (this.apiProvider.network === 1)
       ? `https://zigzag-markets.herokuapp.com/markets?id=${pairText}&chainid=${this.apiProvider.network}`
-      : `https://secret-thicket-93345.herokuapp.com/api/v1/marketinfos?chain_id=${this.apiProvider.network}&market=${pairText}`
+      : `http://50.18.218.83:3004/api/v1/marketinfos?chain_id=${this.apiProvider.network}&market=${pairText}`
+
     const marketInfoArray = await fetch(url).then((r) => r.json());
     if (!(marketInfoArray instanceof Array)) return;
     marketInfoArray.forEach((info) => (this.marketInfo[info.alias] = info));
@@ -1032,10 +1060,12 @@ export default class API extends Emitter {
 
   getCurrencyInfo = (currency) => {
     const pairs = this.getPairs();
+    console.log("currency___", currency, pairs, this.marketInfo)
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
       const baseCurrency = pair.split("-")[0];
       const quoteCurrency = pair.split("-")[1];
+      
       if (baseCurrency === currency && this.marketInfo[pair]) {
         return this.marketInfo[pair].baseAsset;
       } else if (quoteCurrency === currency && this.marketInfo[pair]) {

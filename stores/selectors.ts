@@ -33,6 +33,9 @@ export const connectionSelector = (state: MangoStore) =>
 export const orderbookSelector = (state: MangoStore) =>
   state.selectedMarket.orderBook
 
+export const marketFillsSelector = (state: MangoStore) =>
+  state.selectedMarket.marketFills
+
 export const markPriceSelector = (state: MangoStore) =>
   state.selectedMarket.markPrice
 

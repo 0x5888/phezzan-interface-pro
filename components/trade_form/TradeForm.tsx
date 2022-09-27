@@ -20,8 +20,6 @@ export default function TradeForm() {
   const { connected } = useWallet()
   const { theme, setTheme } = useTheme()
 
-  console.log("theme______", theme)
-
   const marketConfig = useMangoStore((s) => s.selectedMarket.config)
   const mangoGroup = useMangoStore((s) => s.selectedMangoGroup.current)
 
