@@ -305,6 +305,7 @@ export default class APIZkSync2Provider extends APIProvider {
     console.log('signing in to zkSync 2.0');
     const [account] = await this.api.web3.eth.getAccounts();
     const balances = await this.getBalances();
+    console.log("getBalances___", balances)
     this.accountState = {
       id: account,
       address: account,

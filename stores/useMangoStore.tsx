@@ -307,6 +307,8 @@ export type MangoStore = {
   }
   set: (x: (x: MangoStore) => void) => void
   actions: {
+    updateUserWalletBalance: (payload: any, any) => void,
+    setUserWallet: (payload: any, any) => void,
     setWallet: (any) => void
     fetchMarketTrades: (payload: any, any) => void
     fetchOrderBook: (payload: any, any) => void
@@ -332,19 +334,10 @@ export type MangoStore = {
     loadAlerts: (pk: PublicKey) => void
     gethMarketsInfo: (payload: any, args: any) => void
     fetchMarketsInfo: () => void
-    fetchCoingeckoPrices: () => void
+  
     fetchProfileDetails: (pk: string) => void
-    fetchProfileFollowing: (pk: string) => void
-    followAccount: (
-      mangoAccountPk: string,
-      publicKey: PublicKey,
-      signMessage: any
-    ) => void
-    unfollowAccount: (
-      mangoAccountPk: string,
-      publicKey: PublicKey,
-      signMessage: any
-    ) => void
+   
+   
   }
   alerts: {
     activeAlerts: Array<Alert>
@@ -530,6 +523,16 @@ const useMangoStore = create<
       },
       set: (fn) => set(produce(fn)),
       actions: {
+        updateUserWalletBalance(payload: any = {}, args: any) {
+          const set = get().set;
+
+          if (payload && Object.keys(payload).length > 0) {
+            set((state) => {
+              state.wallet.committed.balances = {...payload}
+            })
+          }
+          
+        },
         setWallet(payload: any) {
           const set = get().set
           if (payload?.id) {
@@ -544,6 +547,16 @@ const useMangoStore = create<
               state.wallet.address = payload.address
             })
           }
+        },
+        setUserWallet(payload: any, args: any) {
+          console.log("payload___wallet", payload, args)
+          const set = get().set
+
+          set((state) => {
+            state.wallet.id = payload.id
+            state.wallet.address = payload.address;
+            state.wallet.committed.balance = payload.balance
+          })
         },
         fetchMarketTrades(payload: any, args: any) {
           const set = get().set
@@ -580,7 +593,6 @@ const useMangoStore = create<
             //   state.marketFills[fillid] = fill;
             // }
           })
-
         },
         fetchOrderBook(payload: any, args: any) {
           const set = get().set
@@ -1452,36 +1464,6 @@ const useMangoStore = create<
             console.log('ERORR: Unable to load all market info')
           }
         },
-        async fetchCoingeckoPrices() {
-          const set = get().set
-          set((state) => {
-            state.coingeckoPrices.loading = true
-          })
-          try {
-            const promises: any = []
-            for (const asset of coingeckoIds) {
-              promises.push(
-                fetch(
-                  `https://api.coingecko.com/api/v3/coins/${asset.id}/market_chart?vs_currency=usd&days=1`
-                ).then((res) => res.json())
-              )
-            }
-
-            const data = await Promise.all(promises)
-            for (let i = 0; i < data.length; i++) {
-              data[i].symbol = coingeckoIds[i].symbol
-            }
-            set((state) => {
-              state.coingeckoPrices.data = data
-              state.coingeckoPrices.loading = false
-            })
-          } catch (e) {
-            console.log('ERORR: Unable to load Coingecko prices')
-            set((state) => {
-              state.coingeckoPrices.loading = false
-            })
-          }
-        },
         async fetchProfileDetails(walletPk: string) {
           const set = get().set
           set((state) => {
@@ -1502,121 +1484,6 @@ const useMangoStore = create<
             set((state) => {
               state.profile.loadDetails = false
             })
-          }
-        },
-        async fetchProfileFollowing(pk: string) {
-          const set = get().set
-          if (!pk) return
-          set((state) => {
-            state.profile.loadProfileFollowing = true
-          })
-          try {
-            const followingRes = await fetch(
-              `https://mango-transaction-log.herokuapp.com/v3/user-data/following?wallet-pk=${pk}`
-            )
-            const parsedResponse = await followingRes.json()
-            if (Array.isArray(parsedResponse)) {
-              set((state) => {
-                state.profile.following = parsedResponse
-              })
-            } else {
-              set((state) => {
-                state.profile.following = []
-              })
-            }
-            set((state) => {
-              state.profile.loadProfileFollowing = false
-            })
-          } catch {
-            notify({
-              type: 'error',
-              title: 'Unable to load following',
-            })
-            set((state) => {
-              state.profile.loadProfileFollowing = false
-            })
-          }
-        },
-        async followAccount(
-          mangoAccountPk: string,
-          publicKey: PublicKey,
-          signMessage: (x) => Uint8Array
-        ) {
-          const actions = get().actions
-          try {
-            if (!publicKey) throw new Error('Wallet not connected!')
-            if (!signMessage)
-              throw new Error('Wallet does not support message signing!')
-
-            const messageString = JSON.stringify({
-              mango_account: mangoAccountPk,
-              action: 'insert',
-            })
-            const message = new TextEncoder().encode(messageString)
-            const signature = await signMessage(message)
-            if (!sign.detached.verify(message, signature, publicKey.toBytes()))
-              throw new Error('Invalid signature!')
-
-            const requestOptions = {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                wallet_pk: publicKey.toString(),
-                message: messageString,
-                signature: bs58.encode(signature),
-              }),
-            }
-            const response = await fetch(
-              'https://mango-transaction-log.herokuapp.com/v3/user-data/following',
-              requestOptions
-            )
-            if (response.status === 200) {
-              await actions.fetchProfileFollowing(publicKey.toString())
-              notify({ type: 'success', title: 'Account followed' })
-            }
-          } catch (error: any) {
-            notify({ type: 'error', title: 'Failed to follow account' })
-          }
-        },
-        async unfollowAccount(
-          mangoAccountPk: string,
-          publicKey: PublicKey,
-          signMessage: (x) => Uint8Array
-        ) {
-          const actions = get().actions
-          try {
-            if (!publicKey) throw new Error('Wallet not connected!')
-            if (!signMessage)
-              throw new Error('Wallet does not support message signing!')
-
-            const messageString = JSON.stringify({
-              mango_account: mangoAccountPk,
-              action: 'delete',
-            })
-            const message = new TextEncoder().encode(messageString)
-            const signature = await signMessage(message)
-            if (!sign.detached.verify(message, signature, publicKey.toBytes()))
-              throw new Error('Invalid signature!')
-
-            const requestOptions = {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                wallet_pk: publicKey.toString(),
-                message: messageString,
-                signature: bs58.encode(signature),
-              }),
-            }
-            const response = await fetch(
-              'https://mango-transaction-log.herokuapp.com/v3/user-data/following',
-              requestOptions
-            )
-            if (response.status === 200) {
-              await actions.fetchProfileFollowing(publicKey.toString())
-              notify({ type: 'success', title: 'Account unfollowed' })
-            }
-          } catch (error: any) {
-            notify({ type: 'error', title: 'Failed to unfollow account' })
           }
         },
       },

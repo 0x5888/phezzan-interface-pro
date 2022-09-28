@@ -197,7 +197,27 @@ const PerpMarket: React.FC = () => {
 
   useEffect(() => {
     api.on("message", (operation, args) => {     
-      console.log("operation___", operation, args) 
+      console.log("operation___11", operation, args)
+      if (operation == "err" && args[0] == "login") {
+        const MOCK_USER = {
+          "user": {
+            "id":"0x21EfC0BD5D286dd20747516abdEF8ec52f378058",
+            "address":"0x21EfC0BD5D286dd20747516abdEF8ec52f378058",
+            "committed": {"balances":{}},
+            "profile":{
+              "description": null,
+              "website": null,
+              "image":"data:imagepng;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAALxJREFUWEdj9N7Q9J8BCWyRM0DmUp3t8+gCipmMow4Y8BDQf1KOkgZkznCjxBF6mkCPQ/REQkj9E5OvqGlg1AEDHgIDnghHHTDoQgA9n154ZY2Sbw3EjuKtHwipRy9nMOqCUQcMeAgQKstJbSAQMo9ge4BQ5UPIQaMOIBgC89tQmkPoOdz9HxNKMjR5QmZxzjqgEEXAujZjlAiIrVNiG4eRhoYdQDdQwC9QUIoTkltDxAqyjHqglEH0DsEAGzHISBYya6AAAAAElFTkSuQmCC",
+              "address":"0x21EfC0BD5D286dd20747516abdEF8ec52f378058",
+              "name":"0x21Ef…378058"
+            }
+          },
+          "_persist": {
+            "version": -1,
+            "rehydrated": true
+          }
+        }
+      }
 
       if (operation === "lastprice") {
         actions?.gethMarketsInfo(args, operation)
@@ -672,6 +692,16 @@ const PerpMarket: React.FC = () => {
         actions?.fetchOrderBook(operation, args)
       }
     });
+
+    api.on("signIn", (data) => {
+      console.log("operation____22", data)
+        actions?.setUserWallet(data, "signIn")
+    });
+
+    api.on("balanceUpdate", (operation, args) => {
+      console.log("operation____33", args)
+        actions?.updateUserWalletBalance(args, "balanceUpdate")
+    })
 
     api.start()
   }, [])

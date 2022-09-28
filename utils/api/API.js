@@ -42,8 +42,9 @@ export default class API extends Emitter {
     _profiles = {}
     _pendingOrders = []
     _pendingFills = []
+    rpc = ""
 
-    constructor({ infuraId, networks, currencies, validMarkets }) {
+    constructor({ infuraId, rpc, networks, currencies, validMarkets }) {
         super()
         
         if (networks) {
@@ -56,6 +57,7 @@ export default class API extends Emitter {
             })
         }
         
+        this.rpc = rpc
         this.infuraId = infuraId
         this.currencies = currencies
         this.validMarkets = validMarkets
@@ -63,12 +65,12 @@ export default class API extends Emitter {
         if (globalThis?.window?.ethereum) {
           globalThis?.window?.ethereum.on('accountsChanged', this.signOut)
           globalThis?.window?.ethereum.on('chainChanged', chainId => {
-                this.signOut().then(() => {
-                    this.setAPIProvider(chainMap[chainId])
-                })
+                // this.signOut().then(() => {
+                //     this.setAPIProvider(chainMap[chainId])
+                // })
             })
 
-            this.setAPIProvider(chainMap[globalThis?.window?.ethereum.chainId] || 1)
+          this.setAPIProvider(chainMap[globalThis?.window?.ethereum.chainId] || 1)
         } else {
            // this.setAPIProvider(this.networks.mainnet[0])
         }
@@ -80,7 +82,6 @@ export default class API extends Emitter {
 
     setAPIProvider = (network, networkChanged = true) => {
         const networkName = this.getNetworkName(network)
-        
         if (!networkName) {
             this.signOut()
             return
@@ -95,25 +96,29 @@ export default class API extends Emitter {
             const newUrl = new URL(this.apiProvider.websocketUrl);
             if (oldUrl.host !== newUrl.host) {
                 // Stopping the WebSocket will trigger an auto-restart in 3 seconds
-                this.stop();
+                this.start();
             }
         }
         
+        const rpcUrl = this.rpc ? this.rpc : `https://${networkName}.infura.io/v3/${this.infuraId}`
+
         this.web3 = new Web3(
           globalThis?.window?.ethereum || new Web3.providers.HttpProvider(
-                `https://${networkName}.infura.io/v3/${this.infuraId}`
+            rpcUrl
             )
         )
 
         this.web3Modal = new Web3Modal({
             network: networkName,
             cacheProvider: true,
-            theme: "dark",
+            theme: "light",
             providerOptions: {
                 walletconnect: {
                     package: WalletConnectProvider,
                     options: {
-                        infuraId: this.infuraId,
+                      rpc: {
+                        280: "https://zksync2-testnet.zksync.dev"
+                      },
                     }
                 },
                 "custom-argent": {
@@ -124,7 +129,9 @@ export default class API extends Emitter {
                     },
                     package: WalletConnectProvider,
                     options: {
-                        infuraId: this.infuraId,
+                      rpc: {
+                        280: "https://zksync2-testnet.zksync.dev"
+                      },
                     },
                     connector: async (ProviderPackage, options) => {
                         const provider = new ProviderPackage(options);
@@ -298,11 +305,26 @@ export default class API extends Emitter {
 
         // login after reconnect
         const accountState = this.getAccountState();
+
+        console.log("refresh____", accountState)
         if (accountState && accountState.id) {
           this.send("login", [
             this.apiProvider.network,
             accountState.id && accountState.id.toString(),
           ]);
+        } else {
+          const USER = localStorage.getItem("USER", JSON.stringify(accountState));
+          console.log("USER___", JSON.parse(USER))
+          const userAuth = JSON.parse(USER)
+
+          if (userAuth && userAuth.id) {
+            
+            const fn = async () => {
+              await this.signIn(280)
+            }
+
+            fn()
+          }
         }
     }
 
@@ -314,6 +336,7 @@ export default class API extends Emitter {
 
     getAccountState = async () => {
         const accountState = { ...(await this.apiProvider.getAccountState()) }
+        console.log("refresh____22", accountState)
         accountState.profile = await this.getProfile(accountState.address)
         this.emit('accountState', accountState)
         return accountState
@@ -381,10 +404,17 @@ export default class API extends Emitter {
             // const web3Provider = await this.web3Modal.connect();
             // const provider = new Provider('https://zksync2-testnet.zksync.dev')
 
-            const web3Provider = new Web3Provider(globalThis?.window?.ethereum);
-            this.web3.setProvider(web3Provider.provider);
-            console.log("web3Provider____", web3Provider)
-            this.signer = web3Provider.getSigner()
+            //const web3Provider = new Web3Provider(globalThis?.window?.ethereum);
+
+            const web3Provider = await this.web3Modal.connect();
+            this.web3.setProvider(web3Provider);
+            console.log("web3Provider___", web3Provider)
+            //this.web3.setProvider(web3Provider.provider);
+            //this.signer = web3Provider.getSigner()
+            const rollupProvider = new ethers.providers.Web3Provider(web3Provider);
+            this.rollupProvider = rollupProvider
+
+            this.signer = rollupProvider.getSigner();
           }
 
           let accountState;
@@ -404,11 +434,13 @@ export default class API extends Emitter {
 
           //accountState.profile = await this.getProfile(accountState.address)
 
+          console.log("accountState___", accountState)
+          localStorage.setItem("USER", JSON.stringify(accountState));
           this.emit("signIn", accountState);
 
           // fetch blances
           //await this.getBalances();
-          //await this.getWalletBalances();
+          await this.getWalletBalancesList();
           //await this.getPolygonWethBalance();
 
           return accountState;
@@ -672,7 +704,7 @@ export default class API extends Emitter {
   withdrawL2FastBridgeFee = async (token) => {
     try {
       return await this.apiProvider.withdrawL2FastBridgeFee(token);
-     } catch (err) {
+    } catch (err) {
       console.log(err);
       return 0;
     }
@@ -694,12 +726,9 @@ export default class API extends Emitter {
 
   approveSpendOfCurrency = async (currency) => {
     const netContract = this.getNetworkContract();
-    console.log("netContract___", netContract)
     if (netContract) {
       const [account] = await this.web3.eth.getAccounts();
       const currencyInfo = this.getCurrencyInfo(currency);
-      console.log("account___", account, currencyInfo, this.lastPrices)
-      debugger
       const contract = new this.web3.eth.Contract(
         erc20ContractABI,
         currencyInfo.address
@@ -719,9 +748,12 @@ export default class API extends Emitter {
 
   getBalanceOfCurrency = async (currency) => {
     const currencyInfo = this.getCurrencyInfo(currency);
+    if (currencyInfo && currencyInfo.symbol == "USDC") {
+      currencyInfo.address = "0xDBc19DE25039978f09d773539327A53C2930e083";
+      currencyInfo.id = "0xDBc19DE25039978f09d773539327A53C2930e083";
+    }
     let result = { balance: 0, allowance: ethersConstants.Zero };
-    console.log("getBalanceOfCurrency___", this.mainnetProvider)
-    if (!this.mainnetProvider) return result;
+    if (!this.apiProvider) return result;
 
     try {
       const netContract = this.getNetworkContract();
@@ -729,7 +761,8 @@ export default class API extends Emitter {
       if (!account || account === '0x') return result;
       
       if (currency === "ETH") {
-        result.balance = await this.mainnetProvider.getBalance(account);
+        result.balance = await this.rollupProvider.getBalance(account);
+        console.log("apiProvider_____222", result)
         return result;
       }
 
@@ -738,16 +771,22 @@ export default class API extends Emitter {
       const contract = new ethers.Contract(
         currencyInfo.address,
         erc20ContractABI,
-        this.mainnetProvider
+        this.signer
       );
+
+      console.log("result____________222", this.signer)
+
       result.balance = await contract.balanceOf(account);
+
+      console.log("result____________333", result.balance.toString(), currencyInfo.address)
+
       if (netContract) {
         result.allowance = ethers.BigNumber.from(
           await contract.allowance(account, netContract)
         );
       }
 
-      console.log("result____________222", result)
+      console.log("result____________444", result)
 
       return result;
     } catch (e) {
@@ -756,7 +795,7 @@ export default class API extends Emitter {
     }
   };
 
-  getWalletBalances = async () => {
+  getWalletBalancesList = async () => {
     const balances = {};
 
     const getBalance = async (ticker) => {
@@ -779,6 +818,7 @@ export default class API extends Emitter {
 
     const tickers = this.getCurrencies();
     // allways fetch ETH for Etherum wallet
+
     if(!tickers.includes("ETH")) { tickers.push("ETH"); }
 
     await Promise.all(tickers.map((ticker) => getBalance(ticker)));

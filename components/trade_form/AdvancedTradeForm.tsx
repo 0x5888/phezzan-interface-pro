@@ -45,6 +45,9 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import usePrevious from 'hooks/usePrevious'
 import api from "utils/api";
 import DepositModal from '../DepositModal'
+import {
+  walletSelector
+} from 'stores/selectors'
 
 const MAX_SLIPPAGE_KEY = 'maxSlippage'
 
@@ -63,6 +66,8 @@ export default function AdvancedTradeForm({
 }: AdvancedTradeFormProps) {
   const { t } = useTranslation('common')
   const set = useMangoStore((s) => s.set)
+  const walletZk = useMangoStore(walletSelector)
+
   const { ipAllowed, spotAllowed, ipCountry } = useIpAddress()
   const { wallet, connected } = useWallet()
   const actions = useMangoStore((s) => s.actions)
@@ -646,7 +651,7 @@ export default function AdvancedTradeForm({
         //price,
         1000,
         //baseAmount,
-        500,
+        50,
         //quoteAmount,
         600,
         //this.props.orderType
@@ -920,6 +925,20 @@ export default function AdvancedTradeForm({
       });
   }
 
+  const quoteAmount = useMemo(() => {
+    console.log("walletZk___new", walletZk)
+    if (walletZk && walletZk.committed.balances && walletZk.committed.balances.USDC && walletZk.committed.balances.USDC.valueReadable) {
+      return walletZk.committed.balances.USDC.valueReadable
+    }
+
+    if (walletZk && walletZk.committed.balances && (walletZk.committed.balances.USDC === 0 || walletZk.committed.balances.USDC === "0")) {
+      0
+    }
+
+    return "--"
+
+  }, [walletZk])
+  
   return (
     <div className="bg-[#1F2025]">
       <OrderSideTabs onChange={onChangeSide} side={side} />
@@ -953,7 +972,7 @@ export default function AdvancedTradeForm({
             //onClick={isEnoughAllowance ? handleDeposit : handleApprove}
             onClick={() => setShowDepositModal(true)}
           >
-            <span>1024 USDT</span>
+            <span>{quoteAmount} USDT</span>
             <img
               alt=""
               width="18"
