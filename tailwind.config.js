@@ -19,8 +19,10 @@ module.exports = {
       colors: {
         'light-theme': {
           orange: {
-            DEFAULT: '#FF9C24',
-            dark: '#F58700',
+            //DEFAULT: '#FF9C24',
+            //dark: '#F58700',
+            DEFAULT: '#00D1E0',
+            dark: "#00D1E0"
           },
           red: { DEFAULT: '#DE3A3D', dark: '#DE3A3D', muted: '#DE3A3D' },
           green: { DEFAULT: '#00CF4C', dark: '#4EC253', muted: '#4EC253' },
@@ -28,16 +30,21 @@ module.exports = {
           'bkg-2': '#f7f7f7',
           'bkg-3': '#F0F0F0',
           'bkg-4': '#E6E6E6',
+          'bkg-5': "#1F2025",
           'fgd-1': '#061f23',
           'fgd-2': '#0C3F45',
           'fgd-3': '#446065',
           'fgd-4': '#B0B0B0',
-          'bkg-button': '#E6DBCF',
+          "fgd-5": '#FFFFFF',
+          //'bkg-button': 'linear-gradient(90deg, #64FC7A, #06D4DF)',
+          'bkg-button': '#06D4DF'
         },
         'dark-theme': {
           yellow: {
-            DEFAULT: '#F2C94C',
-            dark: '#E4AF11',
+            //DEFAULT: '#F2C94C',
+            //dark: '#E4AF11',
+            DEFAULT: '#00D1E0',
+            dark: "#00D1E0"
           },
           red: { DEFAULT: '#DE3A3D', dark: '#DE3A3D', muted: '#DE3A3D' },
           green: { DEFAULT: '#00CF4C', dark: '#4EC253', muted: '#4EC253' },
@@ -45,12 +52,15 @@ module.exports = {
           'bkg-1': '#0A0B0D',
           'bkg-2': '#1B1B1F',
           'bkg-3': '#27272B',
-          'bkg-4': '#38383D',
-          'fgd-1': '#D1D1D1',
+          'bkg-4': '#1F2025',
+          'bkg-5': "#1F2025",
+          'fgd-1': '#D1D1D1', // #0F1429
           'fgd-2': '#C8C8C8',
           'fgd-3': '#B3B3B3',
           'fgd-4': '#878787',
-          'bkg-button': '#4E5152',
+          "fgd-5": '#0F1429',
+          //'bkg-button': '#4E5152',
+          'bkg-button': '#00CAD9',
         },
         'mango-theme': {
           yellow: {
@@ -64,20 +74,23 @@ module.exports = {
           'bkg-2': '#1D1832',
           'bkg-3': '#2A2440',
           'bkg-4': '#37324D',
+          'bkg-5': "#1F2025",
           'fgd-1': '#E5E3EC',
           'fgd-2': '#D2CEDE',
           'fgd-3': '#C1BED3',
-          'fgd-4': '#7E7A90',
+          'fgd-4': '#34353A', // #7E7A90
           'bkg-button': '#464063',
         },
         'th-bkg-1': 'var(--bkg-1)',
         'th-bkg-2': 'var(--bkg-2)',
         'th-bkg-3': 'var(--bkg-3)',
         'th-bkg-4': 'var(--bkg-4)',
+        'th-bkg-5': 'var(--bkg-5)',
         'th-fgd-1': 'var(--fgd-1)',
         'th-fgd-2': 'var(--fgd-2)',
         'th-fgd-3': 'var(--fgd-3)',
         'th-fgd-4': 'var(--fgd-4)',
+        'th-fgd-5': 'var(--fgd-5)',
         'th-primary': 'var(--primary)',
         'th-primary-dark': 'var(--primary-dark)',
         'th-red': 'var(--red)',

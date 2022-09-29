@@ -54,42 +54,20 @@ const TradeHistoryTable = ({
   showActions?: boolean
 }) => {
   const { t } = useTranslation('common')
-  const mangoAccount = useMangoStore((s) => s.selectedMangoAccount.current)
   const { asPath } = useRouter()
   const { width } = useViewport()
-  const tradeHistoryAndLiquidations = useMangoStore(
-    (state) => state.tradeHistory.parsed
-  )
-  const tradeHistory = tradeHistoryAndLiquidations.filter(
-    (t) => !('liqor' in t)
-  )
+  
+  const tradeHistory = [{
+    marketName: "BTC-USDC",
+    liquidity: "liquidity"
+  }]
   const isMobile = width ? width < breakpoints.md : false
   const [filters, setFilters] = useState({})
   const [showFiltersModal, setShowFiltersModal] = useState(false)
   const [loadExportData, setLoadExportData] = useState(false)
 
-  const filteredData = useFilteredData(tradeHistory, filters)
-  const initialLoad = useMangoStore((s) => s.tradeHistory.initialLoad)
-  const { publicKey } = useWallet()
-
-  const {
-    paginatedData,
-    totalPages,
-    nextPage,
-    previousPage,
-    page,
-    firstPage,
-    lastPage,
-    setData,
-    data,
-  } = usePagination(filteredData, { perPage: 100 })
-  const { items, requestSort, sortConfig } = useSortableData(paginatedData)
-
-  useEffect(() => {
-    if (data?.length !== filteredData?.length) {
-      setData(filteredData)
-    }
-  }, [filteredData])
+  //const filteredData = useFilteredData(tradeHistory, filters) 
+  
 
   const renderMarketName = (trade: any) => {
     if (
@@ -113,156 +91,27 @@ const TradeHistoryTable = ({
     }
   }
 
-  const exportPerformanceDataToCSV = async () => {
-    if (!mangoAccount) return
-    setLoadExportData(true)
-    const exportData = await fetchHourlyPerformanceStats(
-      mangoAccount.publicKey.toString(),
-      10000
-    )
-    const dataToExport = exportData.map((row) => {
-      const timestamp = new Date(row.time)
-      return {
-        timestamp: `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}`,
-        account_equity: row.account_equity,
-        pnl: row.pnl,
-      }
-    })
 
-    const title = `${
-      mangoAccount.name || mangoAccount.publicKey
-    }-Performance-${new Date().toLocaleDateString()}`
-    const headers = ['Timestamp', 'Account Equity', 'PNL']
+  console.log("tradeHistory___", tradeHistory)
 
-    exportDataToCSV(dataToExport, title, headers, t)
-    setLoadExportData(false)
-  }
-
-  const hasActiveFilter = useMemo(() => {
-    return tradeHistory.length !== filteredData.length
-  }, [data, filteredData])
-
-  const mangoAccountPk = useMemo(() => {
-    if (mangoAccount) {
-      return mangoAccount.publicKey.toString()
-    }
-  }, [mangoAccount])
-
-  const canWithdraw =
-    mangoAccount && publicKey ? mangoAccount.owner.equals(publicKey) : false
+  const requestSort = (type: string) => {}
+  const sortConfig = {
+    key: "marketName",
+    direction: "ascending"
+  };
 
   return (
     <>
-      {showActions ? (
-        <div className="flex items-center justify-between pb-3">
-          <div className="flex items-center">
-            <h4 className="mb-0 flex items-center text-th-fgd-1">
-              {data.length === 1
-                ? t('number-trade', {
-                    number: !initialLoad ? (
-                      <Loading className="mr-2" />
-                    ) : (
-                      data.length
-                    ),
-                  })
-                : t('number-trades', {
-                    number: !initialLoad ? (
-                      <Loading className="mr-2" />
-                    ) : (
-                      data.length
-                    ),
-                  })}
-            </h4>
-
-            {mangoAccount ? (
-              <Tooltip
-                content={
-                  <div className="mr-4 text-xs text-th-fgd-3">
-                    {t('delay-displaying-recent')} {t('use-explorer-one')}
-                    <a
-                      href={`https://explorer.solana.com/address/${mangoAccount.publicKey.toString()}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {t('use-explorer-two')}
-                    </a>
-                    {t('use-explorer-three')}
-                  </div>
-                }
-              >
-                <InformationCircleIcon className="ml-1.5 h-5 w-5 cursor-pointer text-th-fgd-4" />
-              </Tooltip>
-            ) : null}
-          </div>
-
-          <div className="flex items-center space-x-3">
-            {hasActiveFilter ? (
-              <LinkButton
-                className="order-4 mt-3 flex items-center justify-end whitespace-nowrap text-xs sm:order-first sm:mt-0"
-                onClick={() => setFilters({})}
-              >
-                <RefreshIcon className="mr-1.5 h-4 w-4 flex-shrink-0" />
-                {t('reset-filters')}
-              </LinkButton>
-            ) : null}
-            {tradeHistory.length >= 15 && initialLoad ? (
-              <Button
-                className="order-3 flex h-8 items-center justify-center whitespace-nowrap pt-0 pb-0 pl-3 pr-3 text-xs sm:order-first"
-                onClick={() => setShowFiltersModal(true)}
-              >
-                <FilterIcon className="mr-1.5 h-4 w-4" />
-                {t('filter')}
-              </Button>
-            ) : null}
-            {canWithdraw && !isMobile ? (
-              <Button
-                className={`flex h-8 items-center justify-center whitespace-nowrap pt-0 pb-0 pl-3 pr-3 text-xs`}
-                onClick={exportPerformanceDataToCSV}
-              >
-                {loadExportData ? (
-                  <Loading />
-                ) : (
-                  <div className={`flex items-center`}>
-                    <SaveIcon className={`mr-1.5 h-4 w-4`} />
-                    {t('export-pnl-csv')}
-                  </div>
-                )}
-              </Button>
-            ) : null}
-            {canWithdraw && mangoAccount && !isMobile ? (
-              <div className={`flex items-center`}>
-                <a
-                  className={`default-transition flex h-8 w-full items-center justify-center whitespace-nowrap rounded-full bg-th-bkg-button pt-0 pb-0 pl-3 pr-3 text-xs font-bold text-th-fgd-1 hover:text-th-fgd-1 hover:brightness-[1.1]`}
-                  href={`https://event-history-api.herokuapp.com/all_trades_csv?mango_account=${mangoAccountPk}&open_orders=${mangoAccount.spotOpenOrders
-                    .filter(
-                      (e) => e.toString() !== '11111111111111111111111111111111'
-                    )
-                    .join(',')}`}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <SaveIcon className={`mr-1.5 h-4 w-4`} />
-                  {t('export-trades-csv')}
-                  <Tooltip content={t('trade-export-disclaimer')}>
-                    <InformationCircleIcon className="ml-1.5 h-5 w-5 cursor-help text-th-fgd-4" />
-                  </Tooltip>
-                </a>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
       <div className={`flex flex-col sm:pb-4`}>
-        <div className={`overflow-x-auto sm:-mx-6 lg:-mx-8`}>
+        <div className={`overflow-x-auto`}>
           <div
             className={`inline-block min-w-full align-middle sm:px-6 lg:px-8`}
           >
-            {tradeHistory && paginatedData.length > 0 ? (
+            {tradeHistory.length > 0 ? (
               !isMobile ? (
                 <>
                   <Table>
-                    <thead>
+                    <thead className="h-12">
                       <TrHead>
                         <Th>
                           <LinkButton
@@ -407,7 +256,7 @@ const TradeHistoryTable = ({
                       </TrHead>
                     </thead>
                     <tbody>
-                      {items.map((trade: any) => {
+                      {tradeHistory.map((trade: any) => {
                         return (
                           <TrBody key={`${trade.seqNum}${trade.marketName}`}>
                             <Td className="!py-2 ">
@@ -473,142 +322,18 @@ const TradeHistoryTable = ({
                       })}
                     </tbody>
                   </Table>
-                  {numTrades && items.length > numTrades ? (
+                  {numTrades && tradeHistory.length > numTrades && (
                     <div className="mt-4 flex items-center justify-center">
                       <Link href="/account" shallow={true}>
                         {t('view-all-trades')}
                       </Link>
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-end">
-                      <Pagination
-                        page={page}
-                        totalPages={totalPages}
-                        nextPage={nextPage}
-                        lastPage={lastPage}
-                        firstPage={firstPage}
-                        previousPage={previousPage}
-                      />
-                    </div>
-                  )}
+                  ) }
                 </>
-              ) : (
-                <div className="mb-6">
-                  <div className="border-b border-th-bkg-3">
-                    {paginatedData.map((trade: any, index) => (
-                      <ExpandableRow
-                        buttonTemplate={
-                          <>
-                            <div className="text-fgd-1 flex w-full items-center justify-between">
-                              <div className="text-left">
-                                {trade.loadTimestamp || trade.timestamp ? (
-                                  <TableDateDisplay
-                                    date={formatTradeDateTime(
-                                      trade.loadTimestamp || trade.timestamp
-                                    )}
-                                    showSeconds
-                                  />
-                                ) : (
-                                  t('recent')
-                                )}
-                              </div>
-                              <div>
-                                <div className="text-right">
-                                  <div className="mb-0.5 flex items-center text-left">
-                                    <img
-                                      alt=""
-                                      width="16"
-                                      height="16"
-                                      src={`/assets/icons/${trade.marketName
-                                        .split(/-|\//)[0]
-                                        .toLowerCase()}.svg`}
-                                      className={`mr-1.5`}
-                                    />
-                                    {trade.marketName}
-                                  </div>
-                                  <div className="text-xs text-th-fgd-3">
-                                    <span
-                                      className={`mr-1
-                                ${
-                                  trade.side === 'buy' || trade.side === 'long'
-                                    ? 'text-th-green'
-                                    : 'text-th-red'
-                                }
-                              `}
-                                    >
-                                      {trade.side.toUpperCase()}
-                                    </span>
-                                    {trade.size.toLocaleString()}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        }
-                        key={`${index}`}
-                        panelTemplate={
-                          <div className="grid grid-flow-row grid-cols-2 gap-4">
-                            <div className="text-left">
-                              <div className="pb-0.5 text-xs text-th-fgd-3">
-                                {t('price')}
-                              </div>
-                              {formatUsdValue(trade.price)}
-                            </div>
-                            <div className="text-left">
-                              <div className="pb-0.5 text-xs text-th-fgd-3">
-                                {t('value')}
-                              </div>
-                              {formatUsdValue(trade.value)}
-                            </div>
-                            <div className="text-left">
-                              <div className="pb-0.5 text-xs text-th-fgd-3">
-                                {t('liquidity')}
-                              </div>
-                              {trade.liquidity}
-                            </div>
-                            <div className="text-left">
-                              <div className="pb-0.5 text-xs text-th-fgd-3">
-                                {t('fee')}
-                              </div>
-                              {formatUsdValue(trade.feeCost)}
-                            </div>
-                          </div>
-                        }
-                      />
-                    ))}
-                  </div>
-                  {numTrades && items.length > numTrades ? (
-                    <div className="mt-4 flex items-center justify-center">
-                      <Link href="/account" shallow={true}>
-                        {t('view-all-trades')}
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center md:justify-end">
-                      <Pagination
-                        page={page}
-                        totalPages={totalPages}
-                        nextPage={nextPage}
-                        lastPage={lastPage}
-                        firstPage={firstPage}
-                        previousPage={previousPage}
-                      />
-                    </div>
-                  )}
-                </div>
-              )
-            ) : hasActiveFilter ? (
-              <div className="w-full rounded-md border border-th-bkg-3 py-6 text-center text-th-fgd-3">
-                {t('no-trades-found')}
-              </div>
-            ) : (
+              ) : (null)
+            ) :  (
               <div className="w-full rounded-md border border-th-bkg-3 py-6 text-center text-th-fgd-3">
                 {t('no-history')}
-                {asPath === '/account' ? (
-                  <Link href={'/'} shallow={true}>
-                    <a className="ml-2 inline-flex py-0">{t('make-trade')}</a>
-                  </Link>
-                ) : null}
               </div>
             )}
           </div>

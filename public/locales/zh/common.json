@@ -1,6 +1,6 @@
 {
     "30-day": "30天",
-    "404-heading": "此页面已被清算了",
+    "404-heading": "Page Not Found",
     "404-description": "或者从没存在...",
     "about-to-withdraw": "您正在取款",
     "above": "高于",
@@ -309,6 +309,8 @@
     "orderbook": "订单簿",
     "orderbook-animation": "订单动画",
     "orders": "订单",
+    "open-order": "Open order",
+    "filled-order": "Filled order",
     "other": "其他",
     "overview": "摘要",
     "performance": "表现",

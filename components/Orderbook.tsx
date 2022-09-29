@@ -129,6 +129,7 @@ export default function Orderbook({ depth = 8 }) {
   const groupConfig = useMangoStore(mangoGroupConfigSelector)
   const marketConfig = useMangoStore(marketConfigSelector)
   const orderbook = useMangoStore(orderbookSelector)
+  
   const market = useMangoStore(marketSelector)
   const markPrice = useMarkPrice()
 
@@ -153,8 +154,6 @@ export default function Orderbook({ depth = 8 }) {
       setGrouping(market.tickSize)
     }
   }, [market])
-
-  console.log("previousDepth___", previousDepth, previousGrouping, depth, grouping)
 
   useInterval(() => {
     if (
@@ -266,8 +265,6 @@ export default function Orderbook({ depth = 8 }) {
     setGrouping(groupSize)
   }
 
-  console.log("orderbookData_____", orderbookData)
-
   return !isMobile ? (
     <FlipCard>
       <FlipCardInner flip={defaultLayout}>
@@ -310,7 +307,8 @@ export default function Orderbook({ depth = 8 }) {
                       cumulativeSize,
                       sizePercent,
                       maxSizePercent,
-                    }) => (
+                    }) => {
+                      return (
                       <OrderbookRow
                         market={market}
                         hasOpenOrder={hasOpenOrderForPriceGroup(
@@ -327,7 +325,7 @@ export default function Orderbook({ depth = 8 }) {
                         }
                         grouping={grouping}
                       />
-                    )
+                    )}
                   )}
                 </div>
                 <div className="w-1/2">
@@ -338,7 +336,9 @@ export default function Orderbook({ depth = 8 }) {
                       cumulativeSize,
                       sizePercent,
                       maxSizePercent,
-                    }) => (
+                    }) => {
+                      console.log("orderbookData_____OrderbookRow______22")
+                      return (
                       <OrderbookRow
                         market={market}
                         hasOpenOrder={hasOpenOrderForPriceGroup(
@@ -356,7 +356,7 @@ export default function Orderbook({ depth = 8 }) {
                         }
                         grouping={grouping}
                       />
-                    )
+                    )}
                   )}
                 </div>
               </div>
@@ -366,19 +366,11 @@ export default function Orderbook({ depth = 8 }) {
         ) : (
           <FlipCardBack>
             <FloatingElement className="fadein-floating-element h-full p-0 md:p-0">
-              <div className="flex items-center justify-between bg-[#1F2025] h-8 pl-7">
+              <div className="flex items-center justify-between bg-[#1F2025] h-8 pl-7 border-b border-[#34353A]">
                 <ElementTitlePP noMarginBottom>{t('orderbook')}</ElementTitlePP>
               </div>
-              <div className="flex flex-row items-center justify-end pb-2">
-                <MarkPriceComponent markPrice={markPrice} />
-                <GroupSize
-                  tickSize={market?.tickSize}
-                  onChange={onGroupSizeChange}
-                  value={grouping}
-                  className="relative flex w-1/3 flex-col items-end"
-                />
-              </div>
-              <div className={`mb-2 flex justify-between bg-[#1F2025] text-th-fgd-4 text-[#818599] text-xs px-7 py-2`}>
+              
+              <div className={`mb-2 flex justify-between bg-[#1F2025] text-[#818599] text-xs px-7 py-2 border-b border-[#34353A]`}>
                 <div className={`text-left text-xs`}>
                   {displayCumulativeSize ? 'Cumulative ' : ''}
                   {t('size')} ({marketConfig.baseSymbol})
@@ -395,7 +387,8 @@ export default function Orderbook({ depth = 8 }) {
                     cumulativeSize,
                     sizePercent,
                     maxSizePercent,
-                  }) => (
+                  }) => {
+                    return(
                     <OrderbookRow
                       market={market}
                       hasOpenOrder={hasOpenOrderForPriceGroup(
@@ -412,7 +405,7 @@ export default function Orderbook({ depth = 8 }) {
                       }
                       grouping={grouping}
                     />
-                  )
+                  )}
                 )}
               </div>
               <div className="my-2 flex justify-between rounded-md bg-th-bkg-2 p-2 px-7 bg-[#1F2025] text-[#818599] text-xs">
@@ -451,6 +444,16 @@ export default function Orderbook({ depth = 8 }) {
                     />
                   )
                 )}
+              </div>
+
+              <div className="flex flex-row items-center justify-end h-8 bg-[#1F2025] border-y border-[#34353A]">
+                <MarkPriceComponent markPrice={markPrice} />
+                <GroupSize
+                  tickSize={market?.tickSize}
+                  onChange={onGroupSizeChange}
+                  value={grouping}
+                  className="relative flex w-1/3 flex-col items-end"
+                />
               </div>
               
             </FloatingElement>
@@ -601,7 +604,10 @@ const OrderbookRow = React.memo<any>(
       market?.tickSize && !isNaN(price)
         ? Number(price).toFixed(getDecimalCount(market.tickSize))
         : price
-
+    console.log("side___", side, sizePercent, price, invert,
+    hasOpenOrder,
+    market,
+    grouping,)
     const handlePriceClick = () => {
       setMangoStore((state) => {
         state.tradeForm.price = Number(formattedPrice)
@@ -614,10 +620,10 @@ const OrderbookRow = React.memo<any>(
       })
     }
 
-    if (!market) return null
+    //if (!market) return null
 
     const groupingDecimalCount = getDecimalCount(grouping)
-    const minOrderSizeDecimals = getDecimalCount(market.minOrderSize)
+    const minOrderSizeDecimals = getDecimalCount(market?.minOrderSize)
 
     return (
       <div

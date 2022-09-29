@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Listbox } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/solid'
 import { abbreviateAddress } from '../utils'
@@ -10,51 +10,35 @@ import { Label } from './Input'
 import { useWallet } from '@solana/wallet-adapter-react'
 
 type AccountSelectProps = {
-  accounts: WalletToken[]
-  selectedAccount: WalletToken
-  onSelectAccount: (WalletToken) => any
+  accounts?: WalletToken[]
+  selectedAccount?: WalletToken
+  onSelectAccount?: (WalletToken) => any
   hideAddress?: boolean
+  handleRefresh?: () => void
 }
 
 const AccountSelect = ({
   accounts,
   selectedAccount,
-  onSelectAccount,
-  hideAddress = false,
+  handleRefresh
 }: AccountSelectProps) => {
-  const { wallet } = useWallet()
   const { t } = useTranslation('common')
-  const groupConfig = useMangoStore((s) => s.selectedMangoGroup.config)
-  const tokenSymbols = useMemo(
-    () => groupConfig?.tokens.map((t) => t.symbol),
-    [groupConfig]
-  )
-  const missingTokenSymbols = useMemo(() => {
-    const symbolsForAccounts = accounts.map((a) => a.config.symbol)
-    return tokenSymbols?.filter((sym) => !symbolsForAccounts.includes(sym))
-  }, [accounts, tokenSymbols])
-
-  const actions = useMangoStore((s) => s.actions)
-  const [loading, setLoading] = useState(false)
+  const missingTokenSymbols = ["USDC"]
 
   const handleChange = (value: string) => {
-    const newAccount = accounts.find(
-      (a) => a.account.publicKey.toBase58() === value
-    )
-    onSelectAccount(newAccount)
   }
 
   const handleRefreshBalances = async () => {
-    if (!wallet) return
-    setLoading(true)
-    await actions.fetchWalletTokens(wallet)
-    setLoading(false)
+    handleRefresh && handleRefresh()
   }
 
+  const loading = false
+
+  const usdcBalance = selectedAccount?.uiBalance
+
   return (
-    <div className={`relative inline-block w-full`}>
-      <div className="flex justify-between">
-        <Label>{t('asset')}</Label>
+    <div className={`relative inline-block w-fit`}>
+      {/* <div className="flex justify-between">
         {missingTokenSymbols && missingTokenSymbols.length > 0 ? (
           <LinkButton className="mb-1.5 ml-2" onClick={handleRefreshBalances}>
             <div className="flex items-center">
@@ -65,48 +49,40 @@ const AccountSelect = ({
             </div>
           </LinkButton>
         ) : null}
-      </div>
+      </div> */}
       <Listbox
-        value={selectedAccount?.account.publicKey.toBase58()}
+        //value={selectedAccount?.account.publicKey.toBase58()}
+        value={"USDC"}
         onChange={handleChange}
       >
         {({ open }) => (
-          <div className="relative">
-            <div className="flex items-center">
+          <div className="relative h-full">
+            <div className="flex items-center h-full">
               <Listbox.Button
-                className={`default-transition w-full rounded-md border border-th-bkg-4 bg-th-bkg-1 p-2 font-normal hover:border-th-fgd-4 focus:border-th-fgd-4 focus:outline-none`}
+                className={`default-transition w-full h-full rounded-md border border-th-bkg-4 bg-th-bkg-1 p-2 font-normal hover:border-th-fgd-4 focus:border-th-fgd-4 focus:outline-none`}
               >
                 <div
-                  className={`flex items-center justify-between text-th-fgd-1`}
+                  className={`flex px-4 items-between justify-between text-th-fgd-1`}
                 >
-                  {selectedAccount ? (
+                  {(
                     <div className={`flex flex-grow items-center`}>
                       <img
                         alt=""
                         width="20"
                         height="20"
-                        src={`/assets/icons/${selectedAccount.config.symbol.toLowerCase()}.svg`}
+                        src={`/assets/icons/usdc.svg`}
                         className={`mr-2`}
                       />
                       <div className="text-left">
-                        {selectedAccount.config.symbol}
-                        {!hideAddress ? (
-                          <div className="text-xs text-th-fgd-4">
-                            {abbreviateAddress(
-                              selectedAccount.account.publicKey
-                            )}
-                          </div>
-                        ) : null}
+                        USDC
                       </div>
-                      <div className={`ml-4 flex-grow text-right`}>
-                        {selectedAccount.uiBalance}
-                      </div>
+                      {/* <div className={`ml-4 flex-grow text-right`}>
+                        {usdcBalance}
+                      </div> */}
                     </div>
-                  ) : (
-                    t('select-asset')
                   )}
                   <ChevronDownIcon
-                    className={`default-transition ml-2 h-5 w-5 text-th-fgd-1 ${
+                    className={`default-transition ml-6 h-5 w-5 text-th-fgd-1 ${
                       open ? 'rotate-180 transform' : 'rotate-360 transform'
                     }`}
                   />
@@ -114,59 +90,14 @@ const AccountSelect = ({
               </Listbox.Button>
             </div>
             <Listbox.Options
-              className={`thin-scroll absolute right-0 top-14 z-20 max-h-60 w-full overflow-auto rounded-md bg-th-bkg-2 p-1`}
+              className={`thin-scroll absolute left-0 top-14 z-20 max-h-60 w-max overflow-auto rounded-md bg-th-bkg-2 p-1`}
             >
-              {accounts.map((account) => {
-                const symbolForAccount = account.config.symbol
-
+              {missingTokenSymbols?.map((token) => 
+              {
                 return (
-                  <Listbox.Option
-                    className="mb-0"
-                    disabled={account.uiBalance === 0}
-                    key={account?.account.publicKey.toBase58()}
-                    value={account?.account.publicKey.toBase58()}
-                  >
-                    {({ disabled, selected }) => (
-                      <div
-                        className={`default-transition rounded p-2 text-th-fgd-1 ${
-                          selected && `text-th-primary`
-                        } ${
-                          disabled
-                            ? 'text-th-fgd-1 opacity-50 hover:cursor-not-allowed hover:text-th-fgd-1'
-                            : 'hover:cursor-pointer hover:bg-th-bkg-3 hover:text-th-primary'
-                        }`}
-                      >
-                        <div className={`flex items-center`}>
-                          <img
-                            alt=""
-                            width="16"
-                            height="16"
-                            src={`/assets/icons/${symbolForAccount.toLowerCase()}.svg`}
-                            className="mr-2"
-                          />
-                          <div className={`flex-grow text-left`}>
-                            {symbolForAccount}
-                            {!hideAddress ? (
-                              <div className="text-xs text-th-fgd-4">
-                                {abbreviateAddress(account.account.publicKey)}
-                              </div>
-                            ) : null}
-                          </div>
-                          {!hideAddress ? (
-                            <div className={`text-sm`}>
-                              {account.uiBalance} {symbolForAccount}
-                            </div>
-                          ) : null}
-                        </div>
-                      </div>
-                    )}
-                  </Listbox.Option>
-                )
-              })}
-              {missingTokenSymbols?.map((token) => (
-                <Listbox.Option disabled key={token} value={token}>
+                <Listbox.Option key={token} value={token}>
                   <div
-                    className={`px-2 py-1 opacity-50 hover:cursor-not-allowed`}
+                    className={`px-2 py-1`}
                   >
                     <div className={`flex items-center text-th-fgd-1`}>
                       <img
@@ -177,11 +108,12 @@ const AccountSelect = ({
                         className="mr-2"
                       />
                       <div className={`flex-grow text-left`}>{token}</div>
-                      <div className={`text-xs`}>{t('no-wallet')}</div>
+                      <div className={`text-xs ml-10`}>{usdcBalance}</div>
                     </div>
                   </div>
                 </Listbox.Option>
-              ))}
+              )}
+              )}
             </Listbox.Options>
           </div>
         )}

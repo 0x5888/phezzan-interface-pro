@@ -120,7 +120,7 @@ const Chart: FunctionComponent<ChartProps> = ({
               <div className="flex h-5">
                 <button
                   className={`default-transition mx-3 text-xs font-bold text-th-fgd-1 focus:outline-none md:hover:text-th-primary ${
-                    daysToShow === 1 && 'text-th-primary'
+                    daysToShow === 1 && 'text-[#FFFFFF]'
                   }`}
                   onClick={() => setDaysToShow(1)}
                 >
@@ -128,7 +128,7 @@ const Chart: FunctionComponent<ChartProps> = ({
                 </button>
                 <button
                   className={`default-transition mx-3 text-xs font-bold text-th-fgd-1 focus:outline-none md:hover:text-th-primary ${
-                    daysToShow === 7 && 'text-th-primary'
+                    daysToShow === 7 && 'text-[#FFFFFF]'
                   }`}
                   onClick={() => setDaysToShow(7)}
                 >
@@ -136,7 +136,7 @@ const Chart: FunctionComponent<ChartProps> = ({
                 </button>
                 <button
                   className={`default-transition ml-3 text-xs font-bold text-th-fgd-1 focus:outline-none md:hover:text-th-primary ${
-                    daysToShow === 30 && 'text-th-primary'
+                    daysToShow === 30 && 'text-[#FFFFFF]'
                   }`}
                   onClick={() => setDaysToShow(30)}
                 >
@@ -145,7 +145,7 @@ const Chart: FunctionComponent<ChartProps> = ({
                 {showAll ? (
                   <button
                     className={`default-transition ml-3 text-xs font-bold text-th-fgd-1 focus:outline-none md:hover:text-th-primary ${
-                      daysToShow === 1000 && 'text-th-primary'
+                      daysToShow === 1000 && 'text-[#FFFFFF]'
                     }`}
                     onClick={() => setDaysToShow(1000)}
                   >

@@ -69,7 +69,7 @@ export const ConnectWalletButton: React.FC = () => {
 
   useEffect(() => {
     if (publicKey) {
-      actions.fetchProfileDetails(publicKey.toString())
+      //actions.fetchProfileDetails(publicKey.toString())
     }
   }, [publicKey])
 
@@ -128,6 +128,7 @@ export const ConnectWalletButton: React.FC = () => {
 
   const handleWalletConnectZK = async () => {
     try {
+      // @ts-ignore
       api?.emit("connecting", true)
       // setConnecting(true);
     
@@ -143,6 +144,7 @@ export const ConnectWalletButton: React.FC = () => {
     } catch (e) {
       console.error(e);
       // setConnecting(false);
+      // @ts-ignore
       api.emit("connecting", false)
     }
   };
@@ -181,15 +183,18 @@ export const ConnectWalletButton: React.FC = () => {
               >
                 <Menu.Items className="absolute right-0 z-20 mt-1 w-48 space-y-1.5 rounded-md bg-th-bkg-2 px-4 py-2.5">
                   <Menu.Item>
-                    <button
-                      className="flex w-full flex-row items-center rounded-none py-0.5 font-normal hover:cursor-pointer hover:text-th-primary focus:outline-none"
-                      onClick={() => router.push('/profile')}
-                    >
-                      <UserCircleIcon className="h-4 w-4" />
-                      <div className="pl-2 text-left">
-                        {t('profile:profile')}
-                      </div>
-                    </button>
+                    <div>
+                      <label>Wallet</label>
+                      <button
+                        className="flex w-full flex-row items-center rounded-none py-0.5 font-normal hover:cursor-pointer hover:text-th-primary focus:outline-none"
+                        onClick={() => router.push('/profile')}
+                      >
+                        <UserCircleIcon className="h-4 w-4" />
+                        <div className="pl-2 text-left">
+                          {t('profile:profile')}
+                        </div>
+                      </button>
+                    </div>
                   </Menu.Item>
                   <Menu.Item>
                     <button
@@ -227,7 +232,6 @@ export const ConnectWalletButton: React.FC = () => {
           <button
             //onClick={handleConnect}
             onClick={handleWalletConnectZK}
-            disabled={!mangoGroup}
             className="rounded-none text-[#818599] focus:outline-none disabled:cursor-wait disabled:text-th-bkg-2"
           >
             <div className="default-transition flex h-full flex-row items-center justify-center px-3">

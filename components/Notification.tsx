@@ -53,7 +53,7 @@ const NotificationList = () => {
     <div
       className={`pointer-events-none fixed inset-0 z-50 flex items-end px-4 py-6 text-th-fgd-1 sm:p-6`}
     >
-      <div className={`flex w-full flex-col`}>
+      <div className={`flex w-full flex-col items-end`}>
         {reversedNotifications.map((n) => (
           <Notification key={n.id} notification={n} />
         ))}
@@ -133,7 +133,7 @@ const Notification = ({ notification }: { notification: Notification }) => {
       <div
         className={`pointer-events-auto mt-2 w-full max-w-sm overflow-hidden rounded-md border border-th-bkg-4 bg-th-bkg-3 shadow-lg ring-1 ring-black ring-opacity-5`}
       >
-        <div className={`relative flex items-center px-2 py-2.5`}>
+        <div className={`relative flex items-center items-end px-2 py-2.5`}>
           <div className={`flex-shrink-0`}>
             {type === 'success' ? (
               <CheckCircleIcon className={`mr-1 h-7 w-7 text-th-green`} />

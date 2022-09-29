@@ -9,45 +9,61 @@ import { useViewport } from '../hooks/useViewport'
 import { breakpoints } from './TradePageGrid'
 import { ExpandableRow } from './TableElements'
 import { useTranslation } from 'next-i18next'
+import useDeepCompareEffect from 'use-deep-compare-effect'
+
+import {
+  marketFillsSelector,
+} from '../stores/selectors'
+
+function numStringToSymbol(str, decimals) {
+  const lookup = [
+    { value: 1e6, symbol: "M" },
+    // { value: 1e3, symbol: "k" }, uncomment for thousands abbreviation
+  ];
+
+  const item = lookup.find((item) => str >= item.value);
+
+  if (!item) return str;
+  return (str / item.value).toFixed(decimals) + item.symbol;
+}
 
 export default function RecentMarketTrades() {
   const { t } = useTranslation('common')
   const mangoConfig = useMangoStore((s) => s.selectedMangoGroup.config)
   const marketConfig = useMangoStore((s) => s.selectedMarket.config)
-  const market = useMangoStore((s) => s.selectedMarket.current)
   const { width } = useViewport()
   const isMobile = width ? width < breakpoints.sm : false
-  const [trades, setTrades] = useState<any[]>([])
 
-  const fetchTradesForChart = useCallback(async () => {
-    if (!marketConfig) return
+  const marketFills = useMangoStore(marketFillsSelector)
 
-    const newTrades = await ChartApi.getRecentTrades(
-      marketConfig.publicKey.toString()
-    )
-    console.log("newTrades_____111", newTrades)
-    if (!newTrades) return null
-    if (newTrades.length && trades.length === 0) {
-      setTrades(newTrades)
-    } else if (
-      newTrades?.length &&
-      !isEqual(newTrades[0], trades[0], Object.keys(newTrades[0]))
-    ) {
-      setTrades(newTrades)
+  const [fillData, setFillData] = useState<any[]>([])
+  const one_day_ago = Date.now() - 86400 * 1000;
+
+  useDeepCompareEffect(() => {
+    if (Object.values(marketFills).length > 0) {
+      Object.values(marketFills)
+        .map((fe) => {
+          return fe
+        })
+        //.filter((fill) => Date.parse(fill[12]) > one_day_ago)
+        // @ts-ignore
+        .sort((a, b) => b[1] - a[1])
+        .forEach((fill) => {
+          fillData.push({
+            // @ts-ignore
+            td1: fill[12], // timestamp
+            // @ts-ignore
+            td2: Number(fill[4]), // price
+            // @ts-ignore
+            td3: Number(fill[5]), // amount
+            // @ts-ignore
+            side: fill[3],
+          });
+      });
+
+      setFillData(fillData)
     }
-  }, [marketConfig, trades])
-
-  useEffect(() => {
-    if (CLUSTER === 'mainnet') {
-      fetchTradesForChart()
-    }
-  }, [fetchTradesForChart])
-
-  useInterval(async () => {
-    if (CLUSTER === 'mainnet') {
-      fetchTradesForChart()
-    }
-  }, 2000)
+  }, [marketFills]);
 
   return !isMobile ? (
     <>
@@ -63,37 +79,36 @@ export default function RecentMarketTrades() {
           </div>
           <div className={`text-right`}>{t('time')}</div>
         </div>
-        {!!trades.length && (
+        {!!fillData.length && (
           <div className="text-xs">
-            {trades.map((trade: ChartTradeType, i: number) => (
+            {fillData.map((trade: ChartTradeType, i: number) => {
+              const d = trade
+
+              let time = "--:--:--"
+              // @ts-ignore
+              if(d.td1) time = new Date(d.td1).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+              // @ts-ignore
+              const price = typeof d.td2 === "number" ? d.td2.toPrecision(6) : d.td2;
+              // @ts-ignore
+              const amount = typeof d.td3 === "number" ? d.td3.toPrecision(6) : d.td3;
+
+              return (
               <div key={i} className={`grid grid-cols-3 leading-5`}>
                 <div
                   className={`${
-                    trade.side === 'buy' ? `text-th-green` : `text-th-red`
+                    trade.side === 'b' ? `text-th-green` : `text-th-red`
                   }`}
                 >
-                  {market?.tickSize && !isNaN(trade.price)
-                    ? usdFormatter(
-                        trade.price,
-                        getDecimalCount(market.tickSize),
-                        false
-                      )
-                    : ''}
+                  {numStringToSymbol(price, 2)}
                 </div>
                 <div className={`text-right text-[#B6BCD9]`}>
-                  {market?.minOrderSize && !isNaN(trade.size)
-                    ? Number(trade.size).toLocaleString(undefined, {
-                        maximumFractionDigits: getDecimalCount(
-                          market.minOrderSize
-                        ),
-                      })
-                    : ''}
+                  {numStringToSymbol(amount, 2)}
                 </div>
                 <div className={`text-right text-[#B6BCD9]`}>
-                  {trade.time && new Date(trade.time).toLocaleTimeString()}
+                  {time}
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>
@@ -107,33 +122,39 @@ export default function RecentMarketTrades() {
           </div>
         }
         panelTemplate={
-          !!trades.length && (
+          !!fillData.length && (
             <div className="col-span-2">
-              {trades.map((trade: ChartTradeType, i: number) => (
+              {fillData.map((trade: ChartTradeType, i: number) => {
+                const d = trade
+                
+                const color = d.side === "b" ? "#27302F" : "#2C232D";
+                console.log("color_____", color)
+
+                let time = "--:--:--"
+                // @ts-ignore
+                if(d.td1) time = new Date(d.td1).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+                // @ts-ignore
+                const price = typeof d.td2 === "number" ? d.td2.toPrecision(6) : d.td2;
+                // @ts-ignore
+                const amount = typeof d.td3 === "number" ? d.td3.toPrecision(6) : d.td3;
+
+                return (
                 <div key={i} className={`grid grid-cols-3 text-xs leading-5`}>
                   <div
                     className={`${
-                      trade.side === 'buy' ? `text-th-green` : `text-th-red`
+                      trade.side === 'b' ? `text-th-green` : `text-th-red`
                     }`}
                   >
-                    {market?.tickSize && !isNaN(trade.price)
-                      ? Number(trade.price).toFixed(
-                          getDecimalCount(market.tickSize)
-                        )
-                      : ''}
+                    {numStringToSymbol(price, 2)}
                   </div>
                   <div className={`text-right`}>
-                    {market?.minOrderSize && !isNaN(trade.size)
-                      ? Number(trade.size).toFixed(
-                          getDecimalCount(market.minOrderSize)
-                        )
-                      : ''}
+                    {numStringToSymbol(amount, 2)}
                   </div>
                   <div className={`text-right text-th-fgd-4`}>
-                    {trade.time && new Date(trade.time).toLocaleTimeString()}
+                    {time}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )
         }

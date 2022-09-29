@@ -12,12 +12,12 @@ export default function useOraclePrice(): I80F48 | null {
     if (mangoGroup && mangoCache) {
       setOraclePrice(null)
       let marketIndex = 0
-      if (selectedMarket.kind === 'spot') {
-        marketIndex = mangoGroup.getSpotMarketIndex(selectedMarket.publicKey)
-      } else {
-        marketIndex = mangoGroup.getPerpMarketIndex(selectedMarket.publicKey)
-      }
-      setOraclePrice(mangoGroup.getPrice(marketIndex, mangoCache))
+      
+      
+      //marketIndex = mangoGroup.getPerpMarketIndex(selectedMarket.publicKey)
+
+      //setOraclePrice(mangoGroup.getPrice(marketIndex, mangoCache))
+      setOraclePrice("6666666")
     }
   }, [mangoGroup, selectedMarket, mangoCache])
 

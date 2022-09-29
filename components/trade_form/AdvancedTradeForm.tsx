@@ -43,6 +43,11 @@ import InlineNotification from '../InlineNotification'
 import { DEFAULT_SPOT_MARGIN_KEY } from '../SettingsModal'
 import { useWallet } from '@solana/wallet-adapter-react'
 import usePrevious from 'hooks/usePrevious'
+import api from "utils/api";
+import DepositModal from '../DepositModal'
+import {
+  walletSelector
+} from 'stores/selectors'
 
 const MAX_SLIPPAGE_KEY = 'maxSlippage'
 
@@ -61,6 +66,8 @@ export default function AdvancedTradeForm({
 }: AdvancedTradeFormProps) {
   const { t } = useTranslation('common')
   const set = useMangoStore((s) => s.set)
+  const walletZk = useMangoStore(walletSelector)
+
   const { ipAllowed, spotAllowed, ipCountry } = useIpAddress()
   const { wallet, connected } = useWallet()
   const actions = useMangoStore((s) => s.actions)
@@ -75,6 +82,9 @@ export default function AdvancedTradeForm({
     DEFAULT_SPOT_MARGIN_KEY,
     false
   )
+
+  const [isLoading, setLoading] = useState(false);
+
   const [spotMargin, setSpotMargin] = useState(defaultSpotMargin)
   const [positionSizePercent, setPositionSizePercent] = useState('')
   const [insufficientSol, setInsufficientSol] = useState(false)
@@ -628,7 +638,55 @@ export default function AdvancedTradeForm({
     }
   }
 
+  const [has, setHas] = useLocalStorageState('positions', 1)
+
+  const handleSubmit = async () => {
+    try {
+      await api.submitOrder(
+        //this.props.currentMarket,
+        "ETH-USDC",
+        //this.props.side,
+        "b",
+
+        //price,
+        1000,
+        //baseAmount,
+        50,
+        //quoteAmount,
+        600,
+        //this.props.orderType
+        "limit"
+      );
+    } catch (e) {
+      console.log("submit err", e);
+  
+    }
+  }
+
+  const flag = true;
   async function onSubmit() {
+    if (flag) {
+      //notify({ title: t('successfully-placed') })
+      setLoading(true)
+
+      try {
+        await api.approveExchangeContract(
+          "USDC",
+          0 // amount = 0 ==> MAX_ALLOWANCE
+        );
+      } catch (e) {
+        console.log("ERR____", e);
+      }
+
+      setTimeout(() => {
+        setHas(true);
+        setLoading(false)
+        notify({ title: t('successfully-placed') })
+      }, 2000)
+      return;
+    }
+
+
     if (!price && isLimitOrder && !postOnlySlide) {
       notify({
         title: t('missing-price'),
@@ -844,8 +902,43 @@ export default function AdvancedTradeForm({
     }
   }
 
-  console.log("initLeverage___", isTriggerOrder, insufficientSol, initLeverage, marketConfig.name, marketConfig)
+  const [isApproveLoading, setApproving] = useState(false)
 
+  const [showDepositModal, setShowDepositModal] = useState(false)
+
+  const [isEnoughAllowance, setAllowance] = useState(false)
+
+  const handleDeposit = () => {
+
+  }
+
+  const handleApprove = () => {
+    setApproving(true);
+    api
+      .approveSpendOfCurrency("USDC")
+      .then(() => {
+        setApproving(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setApproving(false);
+      });
+  }
+
+  const quoteAmount = useMemo(() => {
+    console.log("walletZk___new", walletZk)
+    if (walletZk && walletZk.committed.balances && walletZk.committed.balances.USDC && walletZk.committed.balances.USDC.valueReadable) {
+      return walletZk.committed.balances.USDC.valueReadable
+    }
+
+    if (walletZk && walletZk.committed.balances && (walletZk.committed.balances.USDC === 0 || walletZk.committed.balances.USDC === "0")) {
+      0
+    }
+
+    return "--"
+
+  }, [walletZk])
+  
   return (
     <div className="bg-[#1F2025]">
       <OrderSideTabs onChange={onChangeSide} side={side} />
@@ -858,6 +951,37 @@ export default function AdvancedTradeForm({
         </div>
       ) : null}
       <div className="grid grid-cols-12 gap-x-1.5 gap-y-0.5 text-left mt-4">
+        {showDepositModal && (
+          <DepositModal
+            isOpen={showDepositModal}
+            onClose={() => setShowDepositModal(false)}
+            //tokenSymbol={actionSymbol}                    
+            // repayAmount={
+            //   balance.borrows.toNumber() > 0
+            //     ? balance.borrows.toFixed()
+            //     : ''
+            // }
+          />
+        )}
+        <div className="col-span-12 flex justify-between">
+          <label className="text-xxs text-th-fgd-3">AVBL</label>
+          <div
+            //isLoading={isApproveLoading}
+            className="flex cursor-pointer"
+            
+            //onClick={isEnoughAllowance ? handleDeposit : handleApprove}
+            onClick={() => setShowDepositModal(true)}
+          >
+            <span>{quoteAmount} USDT</span>
+            <img
+              alt=""
+              width="18"
+              //height="16"
+              src={`/assets/icons/dark_icon_recharge@2x.png`}
+              className={`ml-2.5`}
+            />
+          </div>
+        </div>
         <div className="col-span-12">
           <label className="text-xxs text-th-fgd-3">{t('type')}</label>
           <TradeType
@@ -867,6 +991,24 @@ export default function AdvancedTradeForm({
             offerTriggers={isPerpMarket}
           />
         </div>
+
+
+        <div className="col-span-12 mt-4">
+          
+            <>
+              <label className="text-xxs text-th-fgd-3 mb-2">Leverage</label>
+              <Input
+                wrapperClassName="w-full mt-2"
+                type="number"
+                min="0"
+                // prefix={
+                //   <span>Amount</span>
+                // }
+                suffix="X"
+              />
+            </>
+        </div>
+
         <div className="col-span-12 mt-4">
           {!isTriggerOrder ? (
             <>
@@ -880,13 +1022,10 @@ export default function AdvancedTradeForm({
                 value={price}
                 disabled={isMarketOrder}
                 placeholder={tradeType === 'Market' ? markPrice : ''}
-                prefix={
-                  <img
-                    src={`/assets/icons/${groupConfig.quoteSymbol.toLowerCase()}.svg`}
-                    width="16"
-                    height="16"
-                  />
-                }
+                // prefix={
+                //   <span>Amount</span>
+                // }
+                suffix="USDC"
               />
             </>
           ) : (
@@ -935,7 +1074,7 @@ export default function AdvancedTradeForm({
           </>
         )}
         <div className="col-span-12 mt-4">
-          <label className="text-xxs text-th-fgd-3">{t('size')}-111</label>
+          <label className="text-xxs text-th-fgd-3">{t('size')}</label>
           <nav className="-mb-px flex space-x-2 mt-2" aria-label="Tabs">
             <button
               onClick={() => onChange('base')}
@@ -1018,7 +1157,7 @@ export default function AdvancedTradeForm({
               </div>
             ) : null
           ) : null}
-          <div className="mt-1 flex-wrap sm:flex">
+          <div className="invisible mt-1 flex-wrap sm:flex">
             {isLimitOrder ? (
               <div className="flex">
                 <div className="mr-4 mt-3">
@@ -1060,7 +1199,7 @@ export default function AdvancedTradeForm({
                 auto updating the reduceOnly state when doing a market order:
                 && showReduceOnly(perpAccount?.basePosition.toNumber())
              */}
-            <div className="flex">
+            <div className="flex invisible">
               {marketConfig.kind === 'perp' || isCloseOnly ? (
                 <div className="mr-4 mt-3">
                   <Tooltip
@@ -1126,26 +1265,27 @@ export default function AdvancedTradeForm({
           <div className={`mt-4 flex`}>
             {canTrade ? (
               <button
-                disabled={disabledTradeButton}
-                onClick={onSubmit}
+                //disabled={disabledTradeButton}
+                //onClick={onSubmit}
+                onClick={handleSubmit}
                 className={`flex-grow rounded-full px-6 py-2 font-bold text-white focus:outline-none disabled:cursor-not-allowed disabled:bg-th-bkg-4 disabled:text-th-fgd-4 ${
                   side === 'buy' ? 'bg-th-green-dark' : 'bg-th-red'
                 }`}
               >
-                {sizeTooLarge
+                {isLoading ? "Loading..." : sizeTooLarge
                   ? t('too-large')
                   : side === 'buy'
                   ? `${
-                      baseSize > 0 ? `${t('buy')} ` + baseSize : `${t('buy')} `
+                      baseSize > 0 ? `${t('buy')} ` : `${t('buy')} `
                     } ${
-                      isPerpMarket ? marketConfig.name : marketConfig.baseSymbol
+                      isPerpMarket ? "" : marketConfig.baseSymbol
                     }`
                   : `${
                       baseSize > 0
                         ? `${t('sell')} ` + baseSize
                         : `${t('sell')} `
                     } ${
-                      isPerpMarket ? marketConfig.name : marketConfig.baseSymbol
+                      isPerpMarket ? `` : marketConfig.baseSymbol
                     }`}
               </button>
             ) : (

@@ -26,6 +26,7 @@ const MarketNavItem: FunctionComponent<MarketNavItemProps> = ({
 
   const selectMarket = (market) => {
     buttonRef?.current?.click()
+
     router.push(`/?name=${market.name}`, undefined, { shallow: true })
     if (onClick) {
       onClick()
@@ -51,6 +52,8 @@ const MarketNavItem: FunctionComponent<MarketNavItemProps> = ({
     return Math.round((100 * -1) / (w.toNumber() - 1)) / 100
   }
 
+  console.log("market____", market)
+
   return (
     <div className="text-th-fgd-3">
       <div className="flex items-center">
@@ -71,7 +74,8 @@ const MarketNavItem: FunctionComponent<MarketNavItemProps> = ({
                 height="16"
                 src={`/assets/icons/${market.baseSymbol.toLowerCase()}.svg`}
               />
-              <span className="ml-2">{market.name}</span>
+              {/* <span className="ml-2">{market.name}</span> */}
+              <span>{`${market.baseSymbol}-USDC`}</span>
             </div>
             <span className="ml-1.5 text-xs text-th-fgd-4">
               {getMarketLeverage(mangoGroup, mangoGroupConfig, market)}x

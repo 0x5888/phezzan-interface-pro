@@ -31,6 +31,8 @@ import useMangoAccount from 'hooks/useMangoAccount'
 import useLocalStorageState from 'hooks/useLocalStorageState'
 import EditTableColumnsModal from './EditTableColumnsModal'
 
+import api from "utils/api";
+
 const TABLE_COLUMNS = {
   market: true,
   side: true,
@@ -50,15 +52,27 @@ const PositionsTable: React.FC = () => {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showMarketCloseModal, setShowMarketCloseModal] = useState(false)
   const [positionToClose, setPositionToClose] = useState<any>(null)
+  const [isLoading, setLoading] = useState<boolean>(false)
   const [positionToShare, setPositionToShare] = useState<any>(null)
   const [settleSinglePos, setSettleSinglePos] = useState(null)
   const market = useMangoStore(marketSelector)
   const { wallet } = useWallet()
   const price = useMangoStore((s) => s.tradeForm.price)
   const setMangoStore = useMangoStore((s) => s.set)
-  const openPositions = useMangoStore(
+  let openPositions = useMangoStore(
     (s) => s.selectedMangoAccount.openPerpPositions
   )
+
+  const [has, setHas] = useLocalStorageState('positions', false)
+
+  if (has == 1) {
+    // @ts-ignore
+    openPositions = [1]
+  } else {
+    openPositions = []
+  }
+  
+
   const unsettledPositions =
     useMangoStore.getState().selectedMangoAccount.unsettledPerpPositions
   const mangoGroup = useMangoStore((s) => s.selectedMangoGroup.current)
@@ -141,7 +155,7 @@ const PositionsTable: React.FC = () => {
   }, [unsettledPositions])
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-[#0A0B0D]">
       {unsettledPositions.length > 0 ? (
         <div className="mb-6 rounded-lg border border-th-bkg-3 p-4 sm:p-6">
           <div className="flex items-start justify-between pb-4">
@@ -209,202 +223,93 @@ const PositionsTable: React.FC = () => {
         <div className={`inline-block min-w-full align-middle`}>
           {openPositions.length ? (
             !isMobile ? (
-              <Table>
-                <thead>
-                  <TrHead>
-                    {Object.entries(tableColumnsToShow).map((entry) =>
-                      entry[1] ? <Th key={entry[0]}>{t(entry[0])}</Th> : null
-                    )}
-                    <LinkButton
-                      className="flex w-full items-start justify-end"
-                      onClick={() => setShowEditTableColumns(true)}
-                    >
-                      <PencilIcon className="mr-1 h-3.5 w-3.5 flex-shrink-0" />
-                      {t('edit-columns')}
-                    </LinkButton>
-                  </TrHead>
-                </thead>
-                <tbody>
-                  {openPositions.map(
-                    (
-                      {
-                        marketConfig,
-                        perpMarket,
-                        perpAccount,
-                        basePosition,
-                        notionalSize,
-                        indexPrice,
-                        avgEntryPrice,
-                        breakEvenPrice,
-                        unrealizedPnl,
-                        unsettledPnl,
-                      },
-                      index
-                    ) => {
-                      const basePositionUi = roundPerpSize(
-                        basePosition,
-                        marketConfig.baseSymbol
-                      )
-                      const liquidationPrice =
-                        mangoGroup &&
-                        mangoAccount &&
-                        marketConfig &&
-                        mangoGroup &&
-                        mangoCache
-                          ? mangoAccount.getLiquidationPrice(
-                              mangoGroup,
-                              mangoCache,
-                              marketConfig.marketIndex
-                            )
-                          : undefined
-                      return (
-                        <TrBody key={`${marketConfig.marketIndex}`}>
-                          {tableColumnsToShow['market'] ? (
-                            <Td>
-                              <div className="flex items-center">
-                                <img
-                                  alt=""
-                                  width="20"
-                                  height="20"
-                                  src={`/assets/icons/${marketConfig.baseSymbol.toLowerCase()}.svg`}
-                                  className={`mr-2.5`}
-                                />
-                                {decodeURIComponent(asPath).includes(
-                                  marketConfig.name
-                                ) ? (
-                                  <span>{marketConfig.name}</span>
-                                ) : (
-                                  <Link
-                                    href={{
-                                      pathname: '/',
-                                      query: { name: marketConfig.name },
-                                    }}
-                                    shallow={true}
-                                  >
-                                    <a className="text-th-fgd-1 underline hover:text-th-fgd-1 hover:no-underline">
-                                      {marketConfig.name}
-                                    </a>
-                                  </Link>
-                                )}
-                              </div>
-                            </Td>
-                          ) : null}
-                          {tableColumnsToShow['side'] ? (
-                            <Td>
-                              <PerpSideBadge perpAccount={perpAccount} />
-                            </Td>
-                          ) : null}
-                          {tableColumnsToShow['position-size'] ? (
-                            <Td>
-                              {basePosition &&
-                              asPath.includes(marketConfig.baseSymbol) ? (
-                                <span
-                                  className="cursor-pointer underline hover:no-underline"
-                                  onClick={() =>
-                                    handleSizeClick(basePosition, indexPrice)
-                                  }
-                                >
-                                  {basePositionUi}
-                                </span>
-                              ) : (
-                                <span>{basePositionUi}</span>
-                              )}
-                            </Td>
-                          ) : null}
-                          {tableColumnsToShow['notional-size'] ? (
-                            <Td>{formatUsdValue(Math.abs(notionalSize))}</Td>
-                          ) : null}
-                          {tableColumnsToShow['average-entry'] ? (
-                            <Td>
-                              {avgEntryPrice
-                                ? formatUsdValue(avgEntryPrice)
-                                : '--'}
-                            </Td>
-                          ) : null}
-                          {tableColumnsToShow['break-even'] ? (
-                            <Td>
-                              {breakEvenPrice
-                                ? formatUsdValue(breakEvenPrice)
-                                : '--'}
-                            </Td>
-                          ) : null}
-                          {tableColumnsToShow['estimated-liq-price'] ? (
-                            <Td>
-                              {liquidationPrice &&
-                              liquidationPrice.gt(ZERO_I80F48)
-                                ? usdFormatter(liquidationPrice)
-                                : 'N/A'}
-                            </Td>
-                          ) : null}
-                          {tableColumnsToShow['unrealized-pnl'] ? (
-                            <Td>
-                              {unrealizedPnl ? (
-                                <PnlText pnl={unrealizedPnl} />
-                              ) : (
-                                '--'
-                              )}
-                            </Td>
-                          ) : null}
-                          {tableColumnsToShow['unsettled-balance'] ? (
-                            <Td>
-                              {unsettledPnl ? (
-                                settleSinglePos === index ? (
-                                  <Loading />
-                                ) : (
-                                  <Tooltip content={t('redeem-pnl')}>
-                                    <LinkButton
-                                      className={
-                                        unsettledPnl >= 0
-                                          ? 'text-th-green'
-                                          : 'text-th-red'
-                                      }
-                                      onClick={() =>
-                                        handleSettlePnl(
-                                          perpMarket,
-                                          perpAccount,
-                                          index
-                                        )
-                                      }
-                                      disabled={unsettledPnl === 0}
-                                    >
-                                      {formatUsdValue(unsettledPnl)}
-                                    </LinkButton>
-                                  </Tooltip>
-                                )
-                              ) : (
-                                '--'
-                              )}
-                            </Td>
-                          ) : null}
-                          <Td>
-                            <div className="flex items-center space-x-3">
-                              <Button
-                                className="h-8 pt-0 pb-0 pl-3 pr-3 text-xs"
-                                primary={false}
-                                onClick={() =>
-                                  handleShowMarketCloseModal(
-                                    openPositions[index]
-                                  )
-                                }
-                              >
-                                {t('close')}
-                              </Button>
-                              <LinkButton
-                                onClick={() =>
-                                  handleShowShare(openPositions[index])
-                                }
-                                disabled={!avgEntryPrice ? true : false}
-                              >
-                                <TwitterIcon className="h-4 w-4" />
-                              </LinkButton>
-                            </div>
-                          </Td>
-                        </TrBody>
-                      )
-                    }
-                  )}
-                </tbody>
-              </Table>
+              <div className="flex pt-5 px-6 justify-between">
+                <div className="flex w-80 flex-col items-center">
+                  <div className="flex w-full pb-5 justify-between border-b border-[#373C52]">
+                    <div className="flex">
+                      <img
+                        alt=""
+                        width="30"
+                        height="30"
+                        src={`/assets/icons/eth.svg`}
+                        className={`mr-3`}
+                      />
+                      <div>
+                        <p className="mb-0 text-lg font-medium text-[#FFFFFF]">
+                          10 ETH
+                        </p>
+                        <PnlText className="font-bold" pnl={16301} />
+                      </div>
+                  </div>
+                  <div className="flex">
+                    <PerpSideBadge long/>
+                  </div>
+                  </div>
+
+                  <div className="flex w-full justify-between mt-5 pb-5 border-b border-[#373C52]">
+                    <div className="flex flex-col">
+                      <div>Profit/Loss</div>
+                      <PnlText className="font-bold mt-2" pnl={284.163} />
+                    </div>
+                    <div className="flex flex-col">
+                      <div>Avg.Open Price</div>
+                      <div className="mt-2">1630.1</div>
+                    </div>
+                  </div>
+                  
+                  <button
+                      className="flex w-80 h-10 mt-5 items-center justify-center text-sm font-medium rounded-2xl text-[#0F1429]  bg-[#00CAD9]  hover:cursor-pointer focus:outline-none"
+                      onClick={async () => {
+                        setLoading(true)
+                        try {
+                          await api.approveExchangeContract(
+                            "USDC",
+                            0 // amount = 0 ==> MAX_ALLOWANCE
+                          );
+                        } catch (e) {
+                          console.log("ERR____", e);
+                          //toast.error(e.message);
+                        }
+                        setTimeout(() => {
+                          setLoading(false);
+                          setHas(0)
+                        }, 3000);
+                      }}
+                  >
+                      {isLoading ? "Loading..." : "Close Position"}
+                  </button>
+                </div>
+
+                <div className="flex w-60 flex-col items-center">
+                  <div className="w-full mt-2.5 text-xs text-[#FFFFFF]">Position Info</div>
+                  <div className="w-full mt-5 flex justify-between text-xs text-[#8D8E99]">
+                    <div>Liquidation Price</div>
+                    <div>---</div>
+                  </div>
+
+                  <div className="w-full mt-5 flex justify-between text-xs text-[#8D8E99]">
+                    <div>Account Margin Ratio</div>
+                    <div className="text-xs text-[#FFFFFF]">161.53%</div>
+                  </div>
+
+                  <div className="w-full mt-5 flex justify-between text-xs text-[#8D8E99]">
+                    <div>Account Leverage</div>
+                    <div className="text-xs text-[#FFFFFF]">2X</div>
+                  </div>
+
+
+                  <a
+                    className="h-8 mt-6 self-start text-[#00D1E0] hover:text-[#FFFFFF]"
+                    href="https://docs.mango.markets/mango/account-delegation"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Funding Payment History
+                  </a>
+                </div>
+                
+                
+              </div>
             ) : (
               <div className="border-b border-th-bkg-4">
                 <MobileTableHeader

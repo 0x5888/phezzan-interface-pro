@@ -1,6 +1,6 @@
 {
   "30-day": "30天",
-  "404-heading": "此頁面已被清算了",
+  "404-heading": "Page Not Found",
   "404-description": "或者從沒存在...",
   "about-to-withdraw": "您正在取款",
   "above": "高於",
@@ -276,6 +276,8 @@
   "no-account-found": "您沒有帳戶",
   "no-address": "沒有{{tokenSymbol}}錢包地址",
   "no-balances": "您沒有餘額",
+  "open-order": "Open order",
+  "filled-order": "Filled order",
   "no-borrows": "您沒有借貸。",
   "no-chart": "無法顯示圖表",
   "no-funding": "您未收/付過資金費",

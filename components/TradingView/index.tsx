@@ -18,11 +18,12 @@ import { PerpTriggerOrder } from '../../@types/types'
 import { useTranslation } from 'next-i18next'
 import useLocalStorageState from '../../hooks/useLocalStorageState'
 import { useWallet, Wallet } from '@solana/wallet-adapter-react'
+import binanceAPI from 'utils/chartApi'
 
 export interface ChartContainerProps {
   symbol: ChartingLibraryWidgetOptions['symbol']
   interval: ChartingLibraryWidgetOptions['interval']
-  datafeedUrl: string
+  datafeedUrl?: string
   libraryPath: ChartingLibraryWidgetOptions['library_path']
   chartsStorageUrl: ChartingLibraryWidgetOptions['charts_storage_url']
   chartsStorageApiVersion: ChartingLibraryWidgetOptions['charts_storage_api_version']
@@ -65,10 +66,11 @@ const TVChartContainer = () => {
     containerId: 'tv_chart_container',
     datafeedUrl: CHART_DATA_FEED,
     libraryPath: '/charting_library/',
-    chartsStorageUrl: 'https://trading-view-backend.herokuapp.com',
-    chartsStorageApiVersion: '1.1',
     clientId: 'mango.markets',
     userId: '',
+
+    //custom_css_url: "/tradingview/charting_library/trading_view.css",
+    chartsStorageApiVersion: '1.1',
     fullscreen: false,
     autosize: true,
     studiesOverrides: {
@@ -92,8 +94,13 @@ const TVChartContainer = () => {
       tvWidgetRef.current &&
       selectedMarketConfig.name !== tvWidgetRef.current?.activeChart()?.symbol()
     ) {
+      const name = selectedMarketConfig.name
+      const symbolName = `${name.split("-")[0]}USDT`
+
+      console.log("selectedMarketConfig___", selectedMarketConfig)
+
       tvWidgetRef.current.setSymbol(
-        selectedMarketConfig.name,
+        symbolName,
         tvWidgetRef.current.activeChart().resolution(),
         () => {
           if (showOrderLines) {
@@ -143,12 +150,14 @@ const TVChartContainer = () => {
   useEffect(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
       // debug: true,
-      symbol: selectedMarketConfig.name,
+      symbol: selectedMarketConfig.name ? `${selectedMarketConfig.name.split("-")[0]}USDT` : "",
+      //symbol: "BTCUSDT",
       // BEWARE: no trailing slash is expected in feed URL
       // tslint:disable-next-line:no-any
-      datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(
-        defaultProps.datafeedUrl
-      ),
+      // datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(
+      //   defaultProps.datafeedUrl
+      // ),
+      datafeed: new binanceAPI({ debug: false }),
       interval:
         defaultProps.interval as ChartingLibraryWidgetOptions['interval'],
       container_id:
@@ -615,6 +624,7 @@ const TVChartContainer = () => {
   useEffect(() => {
     if (chartReady && tvWidgetRef?.current) {
       const orderLines = useMangoStore.getState().tradingView.orderLines
+
       tvWidgetRef.current.onChartReady(() => {
         let matchingOrderLines = 0
         let openOrdersForMarket = 0

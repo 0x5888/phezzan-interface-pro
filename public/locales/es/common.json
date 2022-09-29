@@ -1,6 +1,6 @@
 {
    "30-day": "30-day",
-   "404-heading": "This page was liquidated",
+   "404-heading": "Page Not Found",
    "404-description": "or, never existed...",
    "about-to-withdraw": "Estas a punto de retirar",
    "above": "Encima",
@@ -276,6 +276,8 @@
    "no-account-found": "Cuenta no encontrada",
    "no-address": "No ${tokenSymbol} dirección de billetera encontrada",
    "no-balances": "Sin saldos",
+   "open-order": "Open order",
+   "filled-order": "Filled order",
    "no-borrows": "No se encontraron préstamos",
    "no-chart": "No chart available",
    "no-funding": "Sin fondos ganados / pagados",

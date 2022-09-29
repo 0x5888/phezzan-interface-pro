@@ -21,10 +21,12 @@ const Tabs: FunctionComponent<TabsProps> = ({
 }) => {
   const { t } = useTranslation('common')
 
+  //#00C3D2
+
   return (
-    <div className={`relative mb-6 border-b border-th-bkg-4`}>
+    <div className={`relative h-10 border-b border-[#34353A] bg-[#1F2025]`}>
       <div
-        className={`default-transition absolute bottom-[-1px] left-0 h-0.5 bg-th-primary`}
+        className={`default-transition absolute bottom-[-1px] left-0 h-0.5 bg-[#00C3D2]`}
         style={{
           maxWidth: '176px',
           transform: `translateX(${
@@ -33,7 +35,7 @@ const Tabs: FunctionComponent<TabsProps> = ({
           width: `${100 / tabs.length}%`,
         }}
       />
-      <nav className="-mb-px flex" aria-label="Tabs">
+      <nav className="-mb-px flex h-full items-center" aria-label="Tabs">
         {tabs.map((tabName) => {
           const tabCount = showCount
             ? showCount.find((e) => e.tabName === tabName)
@@ -42,11 +44,11 @@ const Tabs: FunctionComponent<TabsProps> = ({
             <a
               key={tabName}
               onClick={() => onChange(tabName)}
-              className={`default-transition relative flex cursor-pointer justify-center whitespace-nowrap pb-4 font-bold hover:opacity-100
+              className={`default-transition relative flex cursor-pointer justify-center whitespace-nowrap font-bold hover:opacity-100
                     ${
                       activeTab === tabName
-                        ? `text-th-primary`
-                        : `text-th-fgd-4 hover:text-th-primary`
+                        ? `text-[#FFFFFF]`
+                        : `text-[#8D8E99] hover:text-[#FFFFFF]`
                     }
                   `}
               style={{ width: `${100 / tabs.length}%`, maxWidth: '176px' }}

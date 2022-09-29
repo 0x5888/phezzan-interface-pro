@@ -66,8 +66,6 @@ const MarketDetails = () => {
     [marketsInfo, selectedMarketName]
   )
 
-  console.log("market_____112", market)
-
   const marketName = market?.baseSymbol;
 
   useEffect(() => {
@@ -77,25 +75,27 @@ const MarketDetails = () => {
     
   }, [marketName])
 
+  console.log("market____111", api.marketInfo)
+
   return (
     <div
       className={`relative flex flex-col md:px-3 md:pt-3 md:pb-2 lg:flex-row lg:items-end lg:justify-between`}
     >
       <div className="flex flex-col lg:flex-row lg:flex-wrap">
         <div className="hidden md:block md:pr-6 lg:pb-0">
-          <div className="flex items-center">
+          <div className="flex">
             <SwitchMarketDropdown />
           </div>
         </div>
-        <div className="grid grid-flow-row grid-cols-1 gap-2 md:mt-2.5 md:grid-cols-3 md:pr-20 lg:grid-flow-col lg:grid-cols-none lg:grid-rows-1 lg:gap-10">
-          <div className="flex items-center justify-center font-semibold text-2xl text-white">
+        <div className="grid grid-flow-row grid-cols-1 gap-2 md:grid-cols-3 md:pr-20 lg:grid-flow-col lg:grid-cols-none lg:grid-rows-1 lg:gap-10">
+          <div className="h-full flex justify-center font-semibold text-2xl text-white">
             <OraclePrice className="font-semibold text-2xl" />
           </div>
           <div className="flex items-center justify-between md:block">
             <div className="text-th-fgd-3 text-xs md:pb-0.5 md:text-[0.65rem]">
               Mark Price
             </div>
-            <OraclePrice />
+            {market?.markPrice || "--"}
           </div>
           <div className="flex items-center justify-between md:block">
             <div className="text-th-fgd-3 text-xs md:pb-0.5 md:text-[0.65rem]">
@@ -142,7 +142,7 @@ const MarketDetails = () => {
                       </Tooltip>
                     </div>
                     <div className="text-th-fgd-1 md:text-xs text-[#ffffff]">
-                      {`${market?.funding1h.toFixed(4)}% (${(
+                      {`${market?.funding1h?.toFixed(4)}% (${(
                         market?.funding1h *
                         24 *
                         365

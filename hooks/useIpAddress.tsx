@@ -38,8 +38,8 @@ const SANCTIONED_COUNTRY_CODES = SANCTIONED_COUNTRIES.map(
 const SPOT_ALLOWED = ['GB']
 
 export default function useIpAddress() {
-  const [ipAllowed, setIpAllowed] = useState(false)
-  const [spotAllowed, setSpotAllowed] = useState(false)
+  const [ipAllowed, setIpAllowed] = useState(true)
+  const [spotAllowed, setSpotAllowed] = useState(true)
   const [ipCountry, setIpCountry] = useState('')
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function useIpAddress() {
       }
     }
 
-    checkIpLocation()
+    //checkIpLocation()
   }, [])
 
   if (CLUSTER === 'mainnet') {

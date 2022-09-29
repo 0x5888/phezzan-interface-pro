@@ -1,11 +1,11 @@
 import { PerpAccount, ZERO_BN } from '@blockworks-foundation/mango-client'
 import SideBadge from './SideBadge'
 
-const PerpSideBadge = ({ perpAccount }: { perpAccount: PerpAccount }) => (
+const PerpSideBadge = ({ long }: { long: boolean }) => (
   <>
-    {perpAccount && !perpAccount.basePosition.eq(ZERO_BN) ? (
+    {long? (
       <SideBadge
-        side={perpAccount.basePosition.gt(ZERO_BN) ? 'long' : 'short'}
+        side={long ? 'long' : 'short'}
       />
     ) : (
       '--'

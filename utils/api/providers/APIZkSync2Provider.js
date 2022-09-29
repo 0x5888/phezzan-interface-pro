@@ -6,6 +6,7 @@ import { Contract } from "zksync-web3";
 import { 
   ZK2_ADDRESSES
 } from "../constants";
+import {toBaseUnit} from "utils/number";
 
 export default class APIZkSync2Provider extends APIProvider {
 
@@ -33,6 +34,14 @@ export default class APIZkSync2Provider extends APIProvider {
 
     return this._getBalances(address, accountBalance);
   };
+
+  getWalletBalances = async () => {
+    const balances = {}
+    const address = this.accountState.address
+    if (!address) return balances;
+
+    return this._getBalance("0xDBc19DE25039978f09d773539327A53C2930e083", address)
+  }
 
   getDydxAccountBalance = async (address) => {
     const perpetual = await new ethers.Contract(
@@ -95,6 +104,8 @@ export default class APIZkSync2Provider extends APIProvider {
   };
 
   _getBalance = async (tokenAddress, userAddress) => {
+    const address = this.accountState.address;
+    console.log("_getBalance___address___", address)
     if (!userAddress) return 0;
 
     if (tokenAddress === this._currencyAddresses["WETH"]) {
@@ -109,6 +120,36 @@ export default class APIZkSync2Provider extends APIProvider {
   
     const balance = await erc20Contract.balanceOf(userAddress);
     return balance;
+  };
+
+  allowanceExchange = async () => {
+    const address = this.accountState.address
+    if (!address) return 0;
+
+    const perpContract = new ethers.Contract(
+      "0xDBc19DE25039978f09d773539327A53C2930e083",
+      //PerpetualV1.abi,
+      erc20ContractABI,
+      this.api.signer
+    );
+
+    const allowance = await perpContract.allowance(
+      //address,
+      address,
+      "0x6Ad6138C66Bc3064fE165634CFaA0ff3e1126a25",
+      //"0xDBc19DE25039978f09d773539327A53C2930e083",
+      //1000000000000
+    );
+
+    //
+    // await erc20ContractSigner.approve(
+    //   "0x6Ad6138C66Bc3064fE165634CFaA0ff3e1126a25",
+    //   1_000_000_000_000
+    // );
+
+    console.log('Approved the spending.');
+
+    return ethers.BigNumber.from(allowance);
   };
 
   // TODO replace
@@ -126,8 +167,34 @@ export default class APIZkSync2Provider extends APIProvider {
       ZK2_ADDRESSES.EXCHANGE_ADDRESS
     );
 
+    //
+    // await erc20ContractSigner.approve(
+    //   "0x6Ad6138C66Bc3064fE165634CFaA0ff3e1126a25",
+    //   1_000_000_000_000
+    // );
+
+    console.log('Approved the spending.');
+
     return ethers.BigNumber.from(allowance);
   };
+
+  deposit = async (address, amount) => {
+    console.log("deposit____222", amount, address);
+
+    const amountNum = toBaseUnit(String(amount), 6);
+
+    const perpetual = await new ethers.Contract(
+      //config["proxyResult"],
+      "0x6Ad6138C66Bc3064fE165634CFaA0ff3e1126a25",
+      PerpetualV1.abi,
+      this.api.signer
+    );
+  
+    await perpetual.deposit(address, amountNum, {
+      gasLimit: 2500000,
+      gasPrice: 550000000
+  });
+  }
 
   
   // buy: 
@@ -178,7 +245,7 @@ export default class APIZkSync2Provider extends APIProvider {
         marketInfo.baseAsset.decimals
       )
       gasFee = ethers.utils.parseUnits (
-        marketInfo.quoteFee.toFixed(marketInfo.quoteAsset.decimals),
+        (+(marketInfo.quoteFee)).toFixed(marketInfo.quoteAsset.decimals),
         marketInfo.quoteAsset.decimals
       )
     }
@@ -238,6 +305,7 @@ export default class APIZkSync2Provider extends APIProvider {
     console.log('signing in to zkSync 2.0');
     const [account] = await this.api.web3.eth.getAccounts();
     const balances = await this.getBalances();
+    console.log("getBalances___", balances)
     this.accountState = {
       id: account,
       address: account,
@@ -250,31 +318,29 @@ export default class APIZkSync2Provider extends APIProvider {
   }
 
   approveExchangeContract = async (token, amount) => {
-    const currencyInfo = this.api.getCurrencyInfo(token);
-    if (!currencyInfo.address) throw new Error(`ERC20 address for ${token} not found`);
+    //const currencyInfo = this.api.getCurrencyInfo(token);
+    //if (!currencyInfo.address) throw new Error(`ERC20 address for ${token} not found`);
     let amountBN;
     if(!amount) {
       amountBN = ethers.constants.MaxUint256;
     } else {
-      amountBN = ethers.utils.parseUnits (
-        amount.toFixed(currencyInfo.decimals),
-        currencyInfo.decimals
-      );
+      amountBN = ethers.constants.MaxUint256;
     }
 
     const erc20Contract = new ethers.Contract(
-      currencyInfo.address,
+      "0xDBc19DE25039978f09d773539327A53C2930e083",
       erc20ContractABI,
       this.api.signer
     );
 
     await erc20Contract.approve(
-      ZK2_ADDRESSES.EXCHANGE_ADDRESS,
+      //ZK2_ADDRESSES.EXCHANGE_ADDRESS,
+      "0x6Ad6138C66Bc3064fE165634CFaA0ff3e1126a25",
       amountBN
     );
 
     // update account balance
-    await this.api.getBalances();
+    //await this.api.getBalances();
     return true;
   };
 }

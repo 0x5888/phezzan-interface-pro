@@ -1,6 +1,6 @@
 {
    "30-day": "30-дневный",
-   "404-heading": "Эта страница была ликвидирована",
+   "404-heading": "Page Not Found",
    "404-description": "или никогда не существовала...",
    "about-to-withdraw": "Вы собираетесь сделать вывод",
    "above": "Выше",
@@ -276,6 +276,8 @@
    "no-account-found": "Не найден аккаунт",
    "no-address": "Адрес кошелька {{tokenSymbol}} не найден",
    "no-balances": "Нет баланса",
+   "open-order": "Open order",
+   "filled-order": "Filled order",
    "no-borrows": "Не найдено заимствований",
    "no-chart": "chart недоступен",
    "no-funding": "Не получено или не выплачено финансирование",
