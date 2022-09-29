@@ -196,6 +196,7 @@ const PerpMarket: React.FC = () => {
   }, [router, marketConfig])
 
   useEffect(() => {
+    // @ts-ignore
     api.on("message", (operation, args) => {     
       console.log("operation___11", operation, args)
       if (operation == "err" && args[0] == "login") {
@@ -693,11 +694,13 @@ const PerpMarket: React.FC = () => {
       }
     });
 
+    // @ts-ignore
     api.on("signIn", (data) => {
       console.log("operation____22", data)
         actions?.setUserWallet(data, "signIn")
     });
 
+    // @ts-ignore
     api.on("balanceUpdate", (operation, args) => {
       console.log("operation____33", args)
         actions?.updateUserWalletBalance(args, "balanceUpdate")

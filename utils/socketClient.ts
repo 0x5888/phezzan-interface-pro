@@ -1,6 +1,8 @@
 export default class SocketClient {
     constructor(base_url, path) {
+      // @ts-ignore
       this.baseUrl = 'wss://fstream.binance.com:9443/ws'
+      // @ts-ignore
       this.tvIntervals = {
         '1': '1m',
         '3': '3m',
@@ -21,27 +23,36 @@ export default class SocketClient {
         'M': '1M',
         '1M': '1M',
       };
+      // @ts-ignore
       this.streams = {}; // e.g: {'BTCUSDT': { paramStr: '', data:{}, listener:  } }
       this._createSocket();
     }
   
     _createSocket() {
+      // @ts-ignore
       this._ws = new WebSocket(this.baseUrl)
+      // @ts-ignore
       this._ws.onopen = (e) => {
         console.info(`Binance WS Open`)
+        // @ts-ignore
         localStorage.setItem("wsStatus", 1)
       }
   
+      // @ts-ignore
       this._ws.onclose = () => {
         console.warn('Binance WS Closed')
+        // @ts-ignore
         localStorage.setItem("wsStatus", 0)
       }
   
+      // @ts-ignore
       this._ws.onerror = (err) => {
         console.warn('WS Error', err)
+        // @ts-ignore
         localStorage.setItem("wsStatus", 0)
       }
   
+      // @ts-ignore
       this._ws.onmessage = (msg) => {
         if (!msg?.data) return
         let sData = JSON.parse(msg.data)
@@ -60,8 +71,11 @@ export default class SocketClient {
               closeTime: T,
               openTime: t,
             }
+            // @ts-ignore
             if (Object.keys(this.streams).length) {
+              // @ts-ignore
               this.streams[s].data = lastSocketData
+              // @ts-ignore
               this.streams[s].listener(lastSocketData)
             }
           }
@@ -75,6 +89,7 @@ export default class SocketClient {
   
     subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback, lastDailyBar) {
       try {
+        // @ts-ignore
         let paramStr = `${symbolInfo.name.toLowerCase()}@kline_${this.tvIntervals[resolution]}`
         const obj = {
           method: "SUBSCRIBE",
@@ -83,8 +98,11 @@ export default class SocketClient {
           ],
           id: 1
         }
+        // @ts-ignore
         if (this._ws.readyState === 1) {
+          // @ts-ignore
           this._ws.send(JSON.stringify(obj))
+          // @ts-ignore
           this.streams[symbolInfo.name] = {  //register multiple streams in streams object
             paramStr,
             listener: onRealtimeCallback
@@ -102,12 +120,16 @@ export default class SocketClient {
         const obj = {
           method: "UNSUBSCRIBE",
           params: [
+            // @ts-ignore
             this.streams[id].paramStr
           ],
           id: 1
         }
+        // @ts-ignore
         delete this.streams[id]
+        // @ts-ignore
         if (this._ws.readyState === 1) {
+          // @ts-ignore
           this._ws.send(JSON.stringify(obj))
         }
       }

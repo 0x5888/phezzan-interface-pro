@@ -634,11 +634,13 @@ const useMangoStore = create<
 
               if (side === "b") {
                 // use
+                // @ts-ignore
                 orderbookBids.push([price, quantity])
               }
 
               if (side === "s") {
                 // use
+                // @ts-ignore
                 orderbookAsks.push([price, quantity])
               }
             }            

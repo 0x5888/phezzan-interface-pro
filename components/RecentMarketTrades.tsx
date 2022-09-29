@@ -46,12 +46,17 @@ export default function RecentMarketTrades() {
           return fe
         })
         //.filter((fill) => Date.parse(fill[12]) > one_day_ago)
+        // @ts-ignore
         .sort((a, b) => b[1] - a[1])
         .forEach((fill) => {
           fillData.push({
+            // @ts-ignore
             td1: fill[12], // timestamp
+            // @ts-ignore
             td2: Number(fill[4]), // price
+            // @ts-ignore
             td3: Number(fill[5]), // amount
+            // @ts-ignore
             side: fill[3],
           });
       });
@@ -80,11 +85,12 @@ export default function RecentMarketTrades() {
               const d = trade
 
               let time = "--:--:--"
+              // @ts-ignore
               if(d.td1) time = new Date(d.td1).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-              const price =
-                typeof d.td2 === "number" ? d.td2.toPrecision(6) : d.td2;
-              const amount =
-                typeof d.td3 === "number" ? d.td3.toPrecision(6) : d.td3;
+              // @ts-ignore
+              const price = typeof d.td2 === "number" ? d.td2.toPrecision(6) : d.td2;
+              // @ts-ignore
+              const amount = typeof d.td3 === "number" ? d.td3.toPrecision(6) : d.td3;
 
               return (
               <div key={i} className={`grid grid-cols-3 leading-5`}>
@@ -125,11 +131,12 @@ export default function RecentMarketTrades() {
                 console.log("color_____", color)
 
                 let time = "--:--:--"
+                // @ts-ignore
                 if(d.td1) time = new Date(d.td1).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-                const price =
-                  typeof d.td2 === "number" ? d.td2.toPrecision(6) : d.td2;
-                const amount =
-                  typeof d.td3 === "number" ? d.td3.toPrecision(6) : d.td3;
+                // @ts-ignore
+                const price = typeof d.td2 === "number" ? d.td2.toPrecision(6) : d.td2;
+                // @ts-ignore
+                const amount = typeof d.td3 === "number" ? d.td3.toPrecision(6) : d.td3;
 
                 return (
                 <div key={i} className={`grid grid-cols-3 text-xs leading-5`}>

@@ -93,7 +93,7 @@ export function bigNum2Big(val, decimals = ERC20_DECIMAL_DIGITS) {
 }
 
 export function big2BigNum(val, decimals = ERC20_DECIMAL_DIGITS) {
-  debugger
+  
   return BigNumber.from((new Big(val)).mul(new Big(10).pow(decimals)).toFixed(0))
 }
 

@@ -372,7 +372,7 @@ const OpenOrdersTable = () => {
   const openOrders = [{
     order: {
       side: "buy",
-      price: "99999"
+      price: 99999
     }, 
     market: {}
   }]
@@ -592,6 +592,7 @@ const OpenOrdersTable = () => {
   }
 
   const sortedOpenOrders = useMemo(() => {
+    // @ts-ignore
     return [...openOrders].sort((a, b) => b.price - a.price)
   }, [openOrders])
 

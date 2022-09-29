@@ -12,9 +12,9 @@ import { useWallet } from '@solana/wallet-adapter-react'
 type AccountSelectProps = {
   accounts?: WalletToken[]
   selectedAccount?: WalletToken
-  onSelectAccount: (WalletToken) => any
+  onSelectAccount?: (WalletToken) => any
   hideAddress?: boolean
-  handleRefresh: () => void
+  handleRefresh?: () => void
 }
 
 const AccountSelect = ({
