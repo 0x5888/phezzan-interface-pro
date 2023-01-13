@@ -93,7 +93,7 @@ export const FiveOhFive = ({ error }) => {
 
                 <a
                   className="whitespace-nowrap rounded-full bg-mango-theme-bkg-3 px-6 py-2 font-bold text-th-fgd-1 hover:brightness-[1.1] focus:outline-none disabled:cursor-not-allowed disabled:bg-th-bkg-4 disabled:text-th-fgd-4 disabled:hover:brightness-100"
-                  href="https://discord.gg/mangomarkets"
+                  href="https://discord.com/invite/sfWVaM4d8e"
                 >
                   <div className="flex">
                     <img
